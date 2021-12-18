@@ -15,22 +15,25 @@ from .exceptions import MessageFormatException
 class SignallingMessageCommands:
     """Valid message commands for signalling messages.
 
-    Client to server
-        GROUP_ADD (b"GROUPADD") - Add a channel to a group.
-        GROUP_DISCARD (b"GROUPDIS") - Remove a channel from a group.
-        FLUSH (b"FLUSHXXX") - Remove all groups, subscriptions and messages from the server.
-        PRINT (b"PRINTXXX") - Print contents of message store and group store to terminal.
-        PERFORMANCE (b"PERFMNCE") - Request performance report
+    **Client to server**
+
+    + GROUP_ADD (b"GROUPADD") - Add a channel to a group.
+    + GROUP_DISCARD (b"GROUPDIS") - Remove a channel from a group.
+    + FLUSH (b"FLUSHXXX") - Remove all groups, subscriptions and messages from the server.
+    + PRINT (b"PRINTXXX") - Print contents of message store and group store to terminal.
+    + PERFORMANCE (b"PERFMNCE") - Request performance report
 
 
-    Server to client
-        COMPLETE (b"COMPLETE") - Command complete
-        EXCEPTION (b"EXCEPTON") - Command raised an exception.
-        PERFORMANCE_REPORT (b"PERFRPRT") - Transmit performance report
-        FLUSH_CLIENT (b"FLUSHCXX") - Flush client message store.
+    **Server to client**
 
-    Both ways
-        KEEPALIVE (b"HARTBEAT") - Intermittent message confirming client/server alive.
+    + COMPLETE (b"COMPLETE") - Command complete
+    + EXCEPTION (b"EXCEPTON") - Command raised an exception.
+    + PERFORMANCE_REPORT (b"PERFRPRT") - Transmit performance report
+    + FLUSH_CLIENT (b"FLUSHCXX") - Flush client message store.
+
+    **Both ways**
+
+    + KEEPALIVE (b"HARTBEAT") - Intermittent message confirming client/server alive.
     """
 
     GROUP_ADD = b"GROUPADD"
@@ -52,11 +55,11 @@ class SignallingMessage:
     message on zmq.DEALER to zmq.ROUTER messages; 1 is the null frame to separate routing_ids from the message;
     and 3 is the number of frames in the message.
 
-    frame -1:-n: Routing IDs (list of zmq.DEALER identities)
-    frame 0: b"" blank frame
-    frame 1: id - Unique universal identifier for tracking commands
-    frame 2: command - Message type (publish to channel, to group, subscribe to channel)
-    frame 3: properties - Properties appended to message
+    + frame -1:-n: Routing IDs (list of zmq.DEALER identities)
+    + frame 0: b"" blank frame
+    + frame 1: id - Unique universal identifier for tracking commands
+    + frame 2: command - Message type (publish to channel, to group, subscribe to channel)
+    + frame 3: properties - Properties appended to message
     """
 
     endpoints: List = field(default_factory=lambda: [])

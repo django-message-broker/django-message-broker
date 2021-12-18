@@ -24,10 +24,10 @@ class ChannelsClient:
     within different processes.
 
     The server opens two sequential ports:
-    + Data port (base port, default=5556)           :   Transmission of data messages between
-                                                        the client and server.
-    + Signalling port (base port + 1, default=5557) :   Transmission of signalling messages
-                                                        between the client and server.
+
+    + Data port (base port, default=5556): Transmission of data messages between the client and server.
+
+    + Signalling port (base port + 1, default=5557): Transmission of signalling messages between the client and server.
     """
 
     def __init__(

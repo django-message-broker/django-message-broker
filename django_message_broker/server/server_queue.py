@@ -79,7 +79,7 @@ class ChannelQueue:
 
     Channel queues may be identified as Process Channels by the inclusion of an '!' within the channel
     name. These channels only have one endpoint. Attempts to change the endpoint (channel_name or
-     dealer_id) or add additional endpoints result in a Subscription Exception.
+    dealer_id) or add additional endpoints result in a Subscription Exception.
 
     Once initialised, the queue starts an event loop which monitors the queue and sends messages in the
     queue once there are subscribers.

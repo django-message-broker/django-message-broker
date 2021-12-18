@@ -7,3 +7,4 @@ sphinx
 setuptools
 black
 flake8
+myst-parser

@@ -18,17 +18,20 @@ DJANGO_CHANNELS_DATABASE_MAX_MESSAGE_SIZE = 1024000
 class DataMessageCommands:
     """Valid message commands for data messages.
 
-    Client to server
-        SUBSCRIBE (b"SUBCHANX") - Subscribe to a channel.
-        SEND_TO_CHANNEL (b"SENDCHAN") - Send this message to a channel.
-        SEND_TO_GROUP (b"SENDGRPX") - Send this message to a group.
+    **Client to server**:
 
-    Server to client
-        DELIVERY (b"DELIVERY") - Deliver this message to a client.
-        SUBSCRIPTION_ERROR (b"ESUBCHAN") - Error subscribing to channel.
+    + SUBSCRIBE (b"SUBCHANX") - Subscribe to a channel.
+    + SEND_TO_CHANNEL (b"SENDCHAN") - Send this message to a channel.
+    + SEND_TO_GROUP (b"SENDGRPX") - Send this message to a group.
 
-    Both ways
-        KEEPALIVE (b"HARTBEAT") - Intermittent message confirming client/server alive.
+    **Server to client**:
+
+    + DELIVERY (b"DELIVERY") - Deliver this message to a client.
+    + SUBSCRIPTION_ERROR (b"ESUBCHAN") - Error subscribing to channel.
+
+    **Both ways**:
+
+    + KEEPALIVE (b"HARTBEAT") - Intermittent message confirming client/server alive.
     """
 
     SUBSCRIBE = b"SUBCHANX"
@@ -46,14 +49,14 @@ class DataMessage:
     message on zmq.DEALER to zmq.ROUTER messages; 1 is the null frame to separate routing_ids from the message;
     and 6 is the number of frames in the message.
 
-    frame -1:-n: Routing IDs (list of zmq.DEALER identities)
-    frame 0: b"" blank frame
-    frame 1: channel_name - Name of channel or group to which message is sent
-    frame 2: command - Message type (publish to channel, to group, subscribe to channel)
-    frame 3: id - Unique universal identifier identifying messages in the same sequence of communication.
-    frame 4: sequence - Sequence number of this message from this publisher.
-    frame 5: properties - Properties appended to message
-    frame 6: body (serialisable object) - Body of message (as dictionary) Maximum size 1MB.
+    + frame -1:-n: Routing IDs (list of zmq.DEALER identities)
+    + frame 0: b"" blank frame
+    + frame 1: channel_name - Name of channel or group to which message is sent
+    + frame 2: command - Message type (publish to channel, to group, subscribe to channel)
+    + frame 3: id - Unique universal identifier identifying messages in the same sequence of communication.
+    + frame 4: sequence - Sequence number of this message from this publisher.
+    + frame 5: properties - Properties appended to message
+    + frame 6: body (serialisable object) - Body of message (as dictionary) Maximum size 1MB.
     """
 
     endpoints: List = field(default_factory=lambda: [])
