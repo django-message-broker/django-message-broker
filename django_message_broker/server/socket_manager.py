@@ -137,24 +137,29 @@ class SocketManager:
     def set_receive_callback(
         self, callback: Callable[[Union[Future, List[Any]]], None]
     ) -> None:
-        """Sets the callback when a message is received on the socket. The callback
-        needs to accept a multipart_message parameter which could be either of the following types:
-
-        + List: Multi-part messages with each frame an element in the list.
-        + asyncio Future: Which returns the multi-part message as a list when result() method is called.
-
-        The generic code within the callback manage the two types of parameters:
-
-        from asyncio.futures import Future
-
-        def callback(multipart_message: Union[Future, List]):
-            if isinstance(multipart_message, Future):
-                multipart_list = multipart_message.result()
-            else:
-                multipart_list = multipart_message
+        """Sets the callback when a message is received on the socket.
 
         Args:
             callback (Callable[[Union[Future, List[Any]]], None]): Callback method accepting Future or List
+
+        Note: The callback needs to accept a multipart_message which could be either of the following types:
+
+        + List: Multi-part message with each frame expressed as an element in the list.
+        + asyncio Future: An asyncio Future containing the above list.
+
+        The callback function should test whether the returned multipart message is a Future and then
+        extract the multipart list as follow:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            from asyncio.futures import Future
+
+            def callback(multipart_message: Union[Future, List]):
+                if isinstance(multipart_message, Future):
+                    multipart_list = multipart_message.result()
+                else:
+                    multipart_list = multipart_message
         """
         # cache the callback so that it can be setup when the socket starts
         self.receive_callback = callback

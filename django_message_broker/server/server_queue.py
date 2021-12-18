@@ -17,11 +17,12 @@ from .utils import IntegerSequence
 class Endpoint:
     """Provides routing information for subscribers
 
-    socket (zmq.Socket, ZMQStream) : zmq.ROUTER socket or stream to which messages are sent.
-    dealer (bytes) : Identity of zmq.DEALER to which messages are sent.
-    is_process_channel(bool): The channel is a process channel (can have only one delivery endpoint).
-    time_to_live (int): Number of seconds before the endpoint is discarded.
-    expiry (Optional[datetime]) : Time when the endpoint will expire
+    Attributes:
+        socket (zmq.Socket, ZMQStream) : zmq.ROUTER socket or stream to which messages are sent.
+        dealer (bytes) : Identity of zmq.DEALER to which messages are sent.
+        is_process_channel(bool): The channel is a process channel (can have only one delivery endpoint).
+        time_to_live (int): Number of seconds before the endpoint is discarded.
+        expiry (Optional[datetime]) : Time when the endpoint will expire
     """
 
     socket: Union[zmq.Socket, ZMQStream]
@@ -37,8 +38,9 @@ class RoundRobinDict(UserDict):
     and continues from the start of the list when the end of the list is reached.
 
     Notes:
-    1: Returns the value of the dictionary entry, not the key
-    2: StopIteration exception is not raised when the dictionary rolls over to the start.
+
+    1. Returns the value of the dictionary entry, not the key
+    2. StopIteration exception is not raised when the dictionary rolls over to the start.
     """
 
     def __init__(self, *args, **kwargs) -> None:

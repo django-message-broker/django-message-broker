@@ -1,7 +1,7 @@
 
-===============
-Django Channels
-===============
+===================
+Django Channels API
+===================
 
 This provides an implementation of the Django Channels layers API.
 
