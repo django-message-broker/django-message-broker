@@ -15,12 +15,11 @@ Introduction
 Django Message Broker is a message broker thatn can be installed on the same
 server as Django with support for Django Channels and Celery.
 
-Table of Contents
-=================
 
 .. toctree::
    :maxdepth: 3
    :caption: Contents:
+   :hidden:
 
    pages/installation
    pages/reference
