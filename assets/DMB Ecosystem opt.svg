@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="640" height="480" version="1.1" viewBox="0 0 169.33 127" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <path transform="matrix(.2063 0 0 .2063 18.431 14.68)" d="m55.336 89.874c9.5649-17.017 101.62 0.097147 115.96-13.235 14.344-13.332 8.153-105.65 26.016-113.69 17.863-8.0385 80.013 59.713 99.416 57.472 19.403-2.2408 65.813-81.802 84.819-77.489 19.007 4.3133 31.106 98.603 48.045 108.24 16.938 9.6416 99.558-29.561 112.89-15.21 13.33 14.351-25.677 94.78-17.484 112.46 8.1931 17.676 94.8 36.883 97.123 56.403s-79.205 60.719-82.979 79.896c-3.7735 19.177 52.539 91.467 42.871 108.46-9.6675 16.993-101.51 0.16473-115.96 13.235-14.456 13.07-2.2333 102.78-20.059 110.84s-85.957-56.821-105.37-54.631c-19.416 2.1904-65.725 78.886-84.926 74.648s-30.867-95.813-47.939-105.4c-17.072-9.5905-99.816 23.596-112.89 9.1469-13.072-14.449 31.563-94.584 23.547-112.46-8.0161-17.873-94.992-36.91-97.123-56.403s78.971-60.785 82.979-79.896c4.0077-19.111-58.499-85.379-48.934-102.4z" fill="#10707f" fill-opacity=".053097" stop-color="#000000" stroke="#fff" stroke-width=".4"/>
+  <g>
+   <g>
+    <circle transform="rotate(41.907)" cx="106.12" cy="-8.7843" r="15.94" fill="#fff" stop-color="#000000" stroke="#106e7d" stroke-width="1.8102" style="font-variation-settings:normal"/>
+    <path transform="matrix(.0256 .040018 -.040018 .0256 96.024 45.614)" d="m344.73 107.09 34.742-54.174 59.09 114.35-128.57-6.001z" fill="#10707f" stop-color="#000000" stroke="#d7d6b7" stroke-width="7.6211" style="font-variation-settings:normal"/>
+    <path transform="matrix(-.025662 -.039978 .039978 -.025662 73.589 84.153)" d="m344.73 107.09 34.742-54.174 59.09 114.35-128.57-6.001z" fill="#10707f" stop-color="#000000" stroke="#d7d6b7" stroke-width="7.6211" style="font-variation-settings:normal"/>
+   </g>
+   <rect transform="rotate(.073625)" x="78.82" y="67.413" width="11.845" height="7.3921" fill="#fff" stop-color="#000000" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205"/>
+   <path d="m78.724 74.906 6.044-5.1377 5.8011 5.1529z" fill="#fff" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205"/>
+   <g fill="#10707f">
+    <path d="m78.734 67.514 5.933 4.6458 5.9121-4.6306z" stop-color="#000000" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205" style="font-variation-settings:normal"/>
+    <path d="m79.925 54.74-1.5351-0.20608 0.07503 1.3886-1.1457 0.19329-0.50236-1.2735-1.3379 0.7686 0.83163 1.0455-0.79307 0.88368-1.1166-0.72793-0.63518 1.3744 1.294 0.36363-0.1473 1.1641-1.3362 0.0722 0.33029 1.493 1.2501-0.44855 0.5668 1.0073-1.0179 0.85641 1.0798 1.019 0.74032-1.1304 1.0391 0.50878-0.33884 1.2664 1.5599 0.17847-0.0722-1.3362 1.1719-0.1947 0.44572 1.1977 1.3546-0.70381-0.84685-1.0841 0.8083-0.84508 1.1443 0.75272 0.59517-1.3854-1.294-0.36363 0.14589-1.1903 1.31-0.07079-0.26267-1.4572-1.2501 0.44855-0.59442-1.032 1.0455-0.83163-1.106-1.0175-0.75413 1.1181-1.0391-0.50878z" stop-color="#000000" stroke="#0f7180" stroke-width=".31288" style="font-variation-settings:normal"/>
+    <path d="m92.104 54.74-1.5351-0.20608 0.07503 1.3886-1.1457 0.19329-0.50236-1.2735-1.3379 0.7686 0.83163 1.0455-0.79307 0.88368-1.1166-0.72793-0.63518 1.3744 1.294 0.36363-0.1473 1.1641-1.3362 0.0722 0.33029 1.493 1.2501-0.44855 0.5668 1.0073-1.0179 0.85641 1.0798 1.019 0.74032-1.1304 1.0391 0.50878-0.33884 1.2664 1.5599 0.17847-0.0722-1.3362 1.1719-0.1947 0.44572 1.1977 1.3546-0.70381-0.84685-1.0841 0.8083-0.84508 1.1443 0.75272 0.59517-1.3854-1.294-0.36363 0.14589-1.1903 1.31-0.07079-0.26267-1.4572-1.2501 0.44855-0.59442-1.032 1.0455-0.83163-1.106-1.0175-0.75413 1.1181-1.0391-0.50878z" stop-color="#000000" stroke="#0f7180" stroke-width=".31288" style="font-variation-settings:normal"/>
+   </g>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 -40.091 3.7379)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 -47.132 -21.687)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 -23.724 -44.105)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 -6.5973 -55.381)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 -4.5618 -40.035)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 11.719 -2.3624)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 14.431 -24.582)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 -56.583 -7.2078)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 28.542 -15.584)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g transform="matrix(.69562 0 0 .69562 24.602 10.112)" stroke="#10717f" stroke-linecap="round" stroke-linejoin="round" stroke-width=".36205">
+   <rect transform="rotate(.073625)" x="135.19" y="108.52" width="11.845" height="7.3921" fill="#fff" stop-color="#000000"/>
+   <path d="m135.04 116.09 6.044-5.1377 5.8011 5.1529z" fill="#fff"/>
+   <path d="m135.05 108.7 5.933 4.6458 5.9121-4.6306z" fill="#10707f" stop-color="#000000" style="font-variation-settings:normal"/>
+  </g>
+  <g fill="#10707f" font-family="Inter" font-size="10.583px" font-weight="600" stroke-width=".26458">
+   <text x="40.60622" y="34.356571" text-anchor="middle" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.1" xml:space="preserve"><tspan x="40.60622" y="34.356571" text-align="center" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">Django</tspan><tspan x="40.60622" y="45.998199" text-align="center" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">Channels</tspan></text>
+   <text x="84.778954" y="98.161636" text-anchor="middle" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.1" xml:space="preserve"><tspan x="84.778954" y="98.161636" text-align="center" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">Process</tspan><tspan x="84.778954" y="109.80327" text-align="center" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">Worker</tspan></text>
+   <text x="124.86162" y="40.491673" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.15" xml:space="preserve"><tspan x="124.86162" y="40.491673" fill="#10707f" font-family="Inter" font-size="10.583px" font-weight="600" stroke-width=".26458" text-align="center" text-anchor="middle" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">Celery</tspan></text>
+  </g>
+ </g>
+</svg>
