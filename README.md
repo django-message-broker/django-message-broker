@@ -21,7 +21,8 @@ for Django Message Broker include:
 The Django Message Broker does not replace the higher volume message brokers, and is
 intended to provide an easy to install, all-in-one alternative for small scale solutions.
 
-## The Django Message Broker supports
+## Supported interfaces
+
 <img src="assets/DMB Ecosystem opt.svg"
      alt="Django message broker ecosystem"
      width=320
