@@ -51,8 +51,12 @@ author = 'Tanzo Creative Ltd'
 
 # The full version, including alpha/beta/rc tags
 with open("../django_message_broker/__init__.py", "rb") as f:
-    release = str(re.search('__version__ = "(.+?)"', f.read().decode()).group(1))
-version = release.rpartition(".")[0]
+    match_item = re.search('__version__ = "(.+?)"', f.read().decode())
+    if match_item:
+        release = match_item.group(1)
+        version = release.rpartition(".")[0]
+    else:
+        release = version = "X.X.X"
 
 # -- General configuration ---------------------------------------------------
 

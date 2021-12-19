@@ -1,20 +1,21 @@
 from inspect import isawaitable
 from tornado.ioloop import PeriodicCallback
 from tornado.log import app_log
-from typing import Awaitable, Callable, Optional, Iterator
+from typing import Awaitable, Callable, Optional, Iterator, Sequence
 import weakref
 
 
 class IntegerSequence:
-    def new_iterator(self, sequence: int = 0) -> Iterator[int]:
+    def new_iterator(self, start: int = 0) -> Iterator[int]:
         """Returns an iterator which generates the next integer in a sequence when called
 
         Args:
-            sequence (int, optional): Starting number of the sequence. Defaults to 0.
+            start (int, optional): Starting number of the sequence. Defaults to 0.
 
         Yields:
             Iterator[int]: Iterator generating the next integer in a sequence.
         """
+        sequence = start
         while True:
             yield sequence
             sequence += 1
