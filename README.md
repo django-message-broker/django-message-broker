@@ -39,7 +39,6 @@ what they do
 
 etc.
 
-
 + Django channels - An alternative to in-memory and Redis backends.
 + Celery - An alternative to RabbitMQ.
 + Process Workers - Non celery background workers.
@@ -50,7 +49,7 @@ Install latest stable version into your python environment using pip::
 
     pip install django-message-broker
 
-Once installed add ``django_message_broker`` to your ``INSTALLED_APPS`` in settings.py::
+Once installed add ``django_message_broker`` to your ``INSTALLED_APPS`` in settings.py:
 
     INSTALLED_APPS = (
         'django_message_broker',
@@ -66,9 +65,6 @@ the current process.
 
 To configure the Django Message Broker as a Channels layer add the following to the ``CHANNEL_LAYERS``
 setting in settings.py:
-
-.. highlight:: python
-.. code-block:: python
 
     CHANNEL_LAYERS = {
         'default': {
