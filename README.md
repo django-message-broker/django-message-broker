@@ -3,7 +3,7 @@
 <img src="assets/django_message_broker_icon_512.svg"
      alt="Django message broker icon"
      width="120"
-     align="right"/>
+     align="left"/>
 
 A message broker connects processes both on the same host or on different hosts
 to allow them to exchange information. Brokers can provide a wide range of services
