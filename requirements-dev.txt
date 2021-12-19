@@ -8,3 +8,4 @@ setuptools
 black
 flake8
 myst-parser
+sphinx_rtd_theme

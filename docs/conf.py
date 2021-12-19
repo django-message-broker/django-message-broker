@@ -1,6 +1,8 @@
+import os
 import re
 import sys
 from pathlib import Path
+from shutil import copy2
 # from recommonmark.parser import CommonMarkParser
 
 # Configuration file for the Sphinx documentation builder.
@@ -23,24 +25,23 @@ sys.path.insert(
         ).resolve()
     )
 )
-print(sys.path)
 sys.setrecursionlimit(1500)
 
-# -- Include CHANGELOG -------------------------------------------------------
+# -- Copy assets from outside docs to temporary assests folder -----------------
+# The docs assets folder is not replicated in git.
 
-# # allow markdown to be able to include the CHANGELOG.md
-# source_parsers = {".md": CommonMarkParser}
-# source_suffix = [".rst", ".md"]
-
-# symlink CHANGELOG.md from repository root to the pages dir.
+asset_list = [
+    "CHANGELOG.md",
+    "assets/django_message_broker_icon_512.svg",
+    "assets/django_message_broker_icon_512.png",
+]
 basedir = Path(__file__).parent.parent
-filename = "CHANGELOG.md"
-symlink_points_to = basedir / filename
-symlink_location = basedir / "docs" / "pages" / filename
-if not symlink_location.is_symlink:
-    print(f"Creating symlink @ {symlink_location} pointing to: {symlink_points_to}")
-    symlink_location.symlink_to(symlink_points_to)
-
+target_directory = basedir / "docs" / "assets"
+for asset in asset_list:
+    source_file = basedir / asset
+    filename = os.path.basename(source_file)
+    destination_file = target_directory / filename
+    copy2(source_file, destination_file)
 
 # -- Project information -----------------------------------------------------
 

@@ -9,4 +9,4 @@ released to `pypi <https://pypi.python.org/pypi/django-message-broker>`_.
     :maxdepth: 1
     :caption: Change log
 
-    CHANGELOG.md
+    ../assets/CHANGELOG.md
