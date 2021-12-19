@@ -1,1 +1,0 @@
-/home/diaazul/workspace/python/django-message-broker/CHANGELOG.md
