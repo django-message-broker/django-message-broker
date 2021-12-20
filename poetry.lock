@@ -673,10 +673,13 @@ brotli = ["brotlipy (>=0.6.0)"]
 secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
+[extras]
+docs = []
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "66273eed996b081927d01eb631b5e3fc454d767fd9793d9c85fe2e76f7c8a6f7"
+content-hash = "030bbaffbd42e7c789b6dc125ad5bbd2989818de695a687bb6b3fbcf6a787b44"
 
 [metadata.files]
 alabaster = [
