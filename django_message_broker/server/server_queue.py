@@ -94,10 +94,7 @@ class ChannelQueue:
         SubscriptionError: Attempt to add multiple endpoints or change the endpoint of a Process Channel
     """
 
-    def __init__(
-        self,
-        channel_name: bytes = b"",
-    ) -> None:
+    def __init__(self, channel_name: bytes = b"") -> None:
         """Creates a new queue for the named channel.
 
         Args:

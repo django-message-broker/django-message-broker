@@ -58,9 +58,7 @@ class ChannelServerTest:
         await self.test_group_send()
         await self.test_local_channel_change()
 
-        print_message_store = SignallingMessage(
-            command=b"PRINTXXX",
-        )
+        print_message_store = SignallingMessage(command=b"PRINTXXX",)
         await self.send_receive_signalling(print_message_store)
         print("TEST: End tests.")
         await asyncio.sleep(5)
@@ -146,20 +144,15 @@ class ChannelServerTest:
 
     async def test_flush(self):
         print("CLIENT: Flushing message store.")
-        flush_message = SignallingMessage(
-            command=SignallingMessageCommands.FLUSH,
-        )
+        flush_message = SignallingMessage(command=SignallingMessageCommands.FLUSH,)
         await self.send_receive_signalling(flush_message)
-        print_message_store = SignallingMessage(
-            command=b"PRINTXXX",
-        )
+        print_message_store = SignallingMessage(command=b"PRINTXXX",)
         await self.send_receive_signalling(print_message_store)
 
     async def test_group_send(self):
         print("CLIENT: Subscribe to channel.")
         subscribe_message = DataMessage(
-            channel_name=b"sourcepress",
-            command=DataMessageCommands.SUBSCRIBE,
+            channel_name=b"sourcepress", command=DataMessageCommands.SUBSCRIBE,
         )
         print("CLIENT: Add to group.")
         await subscribe_message.send(self.data_socket)

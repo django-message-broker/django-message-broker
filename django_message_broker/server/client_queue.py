@@ -16,10 +16,7 @@ class ClientQueue:
     message is available.
     """
 
-    def __init__(
-        self,
-        channel_name: bytes = b"",
-    ) -> None:
+    def __init__(self, channel_name: bytes = b"") -> None:
         """Creates a message queue for a given channel name.
 
         Args:

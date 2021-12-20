@@ -1,7 +1,7 @@
 from inspect import isawaitable
 from tornado.ioloop import PeriodicCallback
 from tornado.log import app_log
-from typing import Awaitable, Callable, Optional, Iterator, Sequence
+from typing import Awaitable, Callable, Optional, Iterator
 import weakref
 
 
@@ -32,15 +32,13 @@ class WeakPeriodicCallback(PeriodicCallback):
     """
 
     def __init__(
-        self,
-        callback: Callable[[], Optional[Awaitable]],
-        *args,
-        **kwargs,
+        self, callback: Callable[[], Optional[Awaitable]], *args, **kwargs
     ) -> None:
         super().__init__(
             callback,  # type: ignore
             *args,
-            **kwargs)
+            **kwargs,
+        )
         # This overwrites the strong reference to the callback established in the base class.
         self.callback = weakref.WeakMethod(callback)
 

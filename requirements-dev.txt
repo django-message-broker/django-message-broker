@@ -1,4 +1,4 @@
-Django==3.2.9
+Django>=3.2.10, <4.0.0
 msgspec==0.3.2
 pyzmq==22.3.0
 tornado==6.1
@@ -7,5 +7,6 @@ sphinx
 setuptools
 black
 flake8
+isort
 myst-parser
 sphinx_rtd_theme

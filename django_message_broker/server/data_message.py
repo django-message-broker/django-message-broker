@@ -253,7 +253,7 @@ class DataMessage:
             index for index, frame in enumerate(multipart_list) if frame == b""
         ][0]
         endpoints = multipart_list[:null_record_index]
-        message_frames = multipart_list[null_record_index + 1:]
+        message_frames = multipart_list[null_record_index + 1 :]
 
         if len(message_frames) != 6:
             raise MessageFormatException("The message data message must be six frames.")

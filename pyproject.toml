@@ -1,0 +1,52 @@
+[tool.poetry]
+name = "django-message-broker"
+version = "0.1.0"
+description = "All-in-one message broker for Django supporting Channels, Celery and process workers"
+authors = ["Tanzo Creative Ltd"]
+license = "BSD 3-Clause"
+keywords = [
+    "django",
+    "message-broker",
+    "channels",
+    "celery"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.8",
+    "Framework :: Django :: 3.2",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed"
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Django = "^4.0"
+msgspec = "^0.3.2"
+pyzmq = "^22.3.0"
+tornado = "^6.1"
+
+[tool.poetry.dev-dependencies]
+black = "^21.12b0"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+Sphinx = "^4.3.2"
+sphinx-rtd-theme = "^1.0.0"
+myst-parser = "^0.16.1"
+pytest = "^6.2.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.extras]
+docs = ["sphinx"]
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "hug"
+src_paths = ["isort", "test"]

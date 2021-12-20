@@ -165,15 +165,10 @@ class SignallingMessage:
             index for index, frame in enumerate(multipart_list) if frame == b""
         ][0]
         endpoints = multipart_list[:null_record_index]
-        message_frames = multipart_list[null_record_index + 1:]
+        message_frames = multipart_list[null_record_index + 1 :]
 
         if len(message_frames) != 3:
             raise MessageFormatException("The signalling message must be three frames.")
         id, command, encoded_properties = message_frames
         properties = decode(encoded_properties)
-        return cls(
-            endpoints=endpoints,
-            id=id,
-            command=command,
-            properties=properties,
-        )
+        return cls(endpoints=endpoints, id=id, command=command, properties=properties,)

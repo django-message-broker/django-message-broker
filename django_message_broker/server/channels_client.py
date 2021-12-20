@@ -31,11 +31,7 @@ class ChannelsClient:
     """
 
     def __init__(
-        self,
-        *args,
-        ip_address: str = "127.0.0.1",
-        port: int = 5556,
-        **kwargs,
+        self, *args, ip_address: str = "127.0.0.1", port: int = 5556, **kwargs,
     ):
         """Client to the message server for Django Channels.
 
@@ -171,9 +167,7 @@ class ChannelsClient:
         subscribe_message = DataMessage(
             command=DataMessageCommands.SUBSCRIBE,
             channel_name=channel_name,
-            properties={
-                "subscriber_name": subscriber_name,
-            },
+            properties={"subscriber_name": subscriber_name},
         )
         await subscribe_message.send(self.data_manager.get_socket())
 
@@ -190,9 +184,7 @@ class ChannelsClient:
         data_message = DataMessage(
             channel_name=channel_name,
             command=DataMessageCommands.SEND_TO_CHANNEL,
-            properties={
-                "ttl": time_to_live,
-            },
+            properties={"ttl": time_to_live},
             body=message,
         )
         await data_message.send(self.data_manager.get_socket())
@@ -210,9 +202,7 @@ class ChannelsClient:
         data_message = DataMessage(
             channel_name=group_name,
             command=DataMessageCommands.SEND_TO_GROUP,
-            properties={
-                "ttl": time_to_live,
-            },
+            properties={"ttl": time_to_live},
             body=message,
         )
         await data_message.send(self.data_manager.get_socket())
@@ -233,11 +223,7 @@ class ChannelsClient:
         )
         await add_group_message.send(self.signalling_manager.get_socket())
 
-    async def _group_discard(
-        self,
-        group_name: bytes,
-        channel_name: bytes,
-    ) -> None:
+    async def _group_discard(self, group_name: bytes, channel_name: bytes) -> None:
         """Removes a channel from a group
 
         Args:
@@ -395,7 +381,5 @@ class ChannelsClient:
         """Resets the server by flushing all messages from the message store, and
         groups from the group store.
         """
-        flush_message = SignallingMessage(
-            command=SignallingMessageCommands.FLUSH,
-        )
+        flush_message = SignallingMessage(command=SignallingMessageCommands.FLUSH)
         await flush_message.send(self.signalling_manager.get_socket())
