@@ -27,7 +27,7 @@ sys.path.insert(
 )
 sys.setrecursionlimit(1500)
 
-# -- Copy assets from outside docs to temporary assests folder -----------------
+# -- Copy assets from outside docs to temporary assets folder -----------------
 # The docs assets folder is not replicated in git.
 
 asset_list = [
