@@ -68,6 +68,6 @@ setting in settings.py:
 
     CHANNEL_LAYERS = {
         'default': {
-            'BACKEND': 'django_channels_server.ChannelsServerLayer',
+            'BACKEND': 'django_message_broker.ChannelsServerLayer',
         },
     }
