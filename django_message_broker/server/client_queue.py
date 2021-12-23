@@ -23,8 +23,8 @@ class ClientQueue:
             channel_name (bytes, optional): Channel name. Defaults to b"".
         """
         self.channel_name = channel_name
-        self.time_to_live = 86400
-        self.expiry = datetime.now() + timedelta(seconds=self.time_to_live)
+        self.time_to_live: float = 86400
+        self.expiry: datetime = datetime.now() + timedelta(seconds=self.time_to_live)
 
         self.queue: Dict[int, DataMessage] = {}
         self.messages_available: Event = asyncio.Event()
@@ -64,7 +64,7 @@ class ClientQueue:
         # reset the expiry time if it has already been set.
         if message.get("expiry") is None:
             try:
-                time_to_live = message["ttl"]
+                time_to_live: float = message["ttl"]
                 message["expiry"] = datetime.now() + timedelta(seconds=time_to_live)
             except KeyError:
                 pass

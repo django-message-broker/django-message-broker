@@ -206,12 +206,12 @@ class ChannelQueue:
 
         self._set_subscribers_available()
 
-    def push(self, message: DataMessage, time_to_live: Optional[int] = 60):
+    def push(self, message: DataMessage, time_to_live: Optional[float] = 60):
         """Pushes a message onto the message queue.
 
         Args:
             message (DataMessage): Message to send to channel
-            time_to_live (int): Number of seconds until message expires
+            time_to_live (float): Number of seconds until message expires
         """
         if time_to_live:
             message["expiry"] = datetime.now() + timedelta(seconds=time_to_live)

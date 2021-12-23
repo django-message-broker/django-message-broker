@@ -2,7 +2,7 @@ import asyncio
 from asyncio.futures import Future
 from datetime import datetime, timedelta
 from tornado.ioloop import IOLoop, PeriodicCallback
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Optional, Union
 import zmq
 
 from .server_queue import ChannelQueue, Endpoint
@@ -215,9 +215,9 @@ class ChannelsServer:
             channel_queue = ChannelQueue(channel_name=channel_name)
             self.message_store[channel_name] = channel_queue
         try:
-            time_to_live = int(message["ttl"])
+            time_to_live: float = int(message["ttl"])
         except (KeyError, ValueError):
-            time_to_live = 60
+            time_to_live: float = 60
         channel_queue.push(message, time_to_live=time_to_live)
 
     def _send_to_group(self, message: DataMessage) -> None:
@@ -284,9 +284,9 @@ class ChannelsServer:
         Args:
             message (DataMessage): Received data message.
         """
-        group = message.properties.get("group_name")
-        channel = message.properties.get("channel_name")
-        time_to_live = message.properties.get("ttl", 86400)
+        group: Optional[Union[str, bytes]] = message.properties.get("group_name")
+        channel: Optional[Union[str, bytes]] = message.properties.get("channel_name")
+        time_to_live: float = message.properties.get("ttl", 86400)
 
         if group and channel:
             group_as_bytes = (

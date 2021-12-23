@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Any, Dict, List, Union
 import uuid
 
 from .server.channels_client import ChannelsClient
@@ -30,6 +30,10 @@ class ChannelsServerLayer(ChannelsClient, BaseChannelLayer):
             port=port,
             **kwargs,
         )
+
+        # Provides Django Channels compatible attribute access to message store
+        # TODO: Is Django channels list or dict?
+        self.channels: Dict = self.message_store
 
     def _coerce_bytes(self, value: Union[str, bytes]) -> bytes:
         """Coerce input of string or bytes to bytes.
@@ -155,7 +159,7 @@ class ChannelsServerLayer(ChannelsClient, BaseChannelLayer):
 
         await self._group_discard(group_name, channel_name)
 
-    async def group_send(self, group: str, message: str) -> None:
+    async def group_send(self, group: str, message: Dict[str, Any]) -> None:
         """Sends a message to a group
 
         Args:

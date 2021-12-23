@@ -172,14 +172,14 @@ class ChannelsClient:
         await subscribe_message.send(self.data_manager.get_socket())
 
     async def _send(
-        self, channel_name: bytes, message: Dict, time_to_live: int = 60
+        self, channel_name: bytes, message: Dict, time_to_live: float = 60
     ) -> None:
         """Sends a message to a channel.
 
         Args:
             channel (Union[str, bytes]): Channel name
             message (Dict): Message to send (as a dictionary)
-            time_to_live (int, optional): Time to live (seconds). Defaults to 60.
+            time_to_live (float, optional): Time to live (seconds). Defaults to 60.
         """
         data_message = DataMessage(
             channel_name=channel_name,
@@ -190,7 +190,7 @@ class ChannelsClient:
         await data_message.send(self.data_manager.get_socket())
 
     async def _send_to_group(
-        self, group_name: bytes, message: Dict, time_to_live: int = 60
+        self, group_name: bytes, message: Dict, time_to_live: float = 60
     ) -> None:
         """Sends a message to a group.
 
