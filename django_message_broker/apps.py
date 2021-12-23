@@ -13,7 +13,7 @@ def run_channels_server():
 
 
 class BackgroundTask(AppConfig):
-    name = "apps.django_message_broker"
+    name = "django_message_broker"
     verbose_name = "Django message broker"
 
     def ready(self):
