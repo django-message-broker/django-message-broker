@@ -48,6 +48,8 @@ class ChannelsClient:
         self.port = port
 
         self.message_store: Dict[bytes, ClientQueue] = {}
+        self.channel_time_to_live = 86400      
+  
         self.group_store: Dict[bytes, Dict[bytes, datetime]] = {}
 
         self.signalling_lock: Event = Event()
@@ -83,7 +85,7 @@ class ChannelsClient:
 
         # Establish callbacks to flush stale queues and groups.
         self.flush_queues_callback = PeriodicCallback(
-            self._flush_queues, callback_time=5000, jitter=0.1
+            self._flush_queues, callback_time=1000, jitter=0.1
         )
 
         # Create dictionary of datamessage command methods.
@@ -119,9 +121,11 @@ class ChannelsClient:
     def _flush_queues(self) -> None:
         """Periodic callback to flush queues where there are no subscribers or messages."""
         queues = list(self.message_store.keys())
+        print("Flushing queue.")
         for queue in queues:
             if self.message_store[queue].can_be_flushed():
                 del self.message_store[queue]
+                print("Queue flushed.")
 
     def _get_routing_id(self) -> str:
         """Returns the routing id from the zmq.DEALER socket used to route message from
@@ -151,10 +155,12 @@ class ChannelsClient:
             Dict: Received message.
         """
         if self.message_store.get(subscriber_name) is None:
-            self.message_store[subscriber_name] = ClientQueue()
+            self.message_store[subscriber_name] = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
         message = None
         while message is None:
+            print(f"Await receive.")
             message = await self.message_store[subscriber_name].pull()
+            print(f"Message received. {message}")
 
         return message.get_body()
 
@@ -164,6 +170,9 @@ class ChannelsClient:
         Args:
             channel_name (bytes): Name of channel subscribed to.
         """
+        if self.message_store.get(subscriber_name) is None:
+            self.message_store[subscriber_name] = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
+
         subscribe_message = DataMessage(
             command=DataMessageCommands.SUBSCRIBE,
             channel_name=channel_name,
@@ -188,6 +197,7 @@ class ChannelsClient:
             body=message,
         )
         await data_message.send(self.data_manager.get_socket())
+        print(f"Message sent: {data_message}")
 
     async def _send_to_group(
         self, group_name: bytes, message: Dict, time_to_live: float = 60
@@ -283,7 +293,7 @@ class ChannelsClient:
         subscriber_name = message.channel_name
         channel_queue = self.message_store.get(subscriber_name)
         if channel_queue is None:
-            channel_queue = ClientQueue(channel_name=subscriber_name)
+            channel_queue = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
             self.message_store[subscriber_name] = channel_queue
         channel_queue.push(message)
 

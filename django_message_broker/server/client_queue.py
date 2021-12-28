@@ -16,14 +16,14 @@ class ClientQueue:
     message is available.
     """
 
-    def __init__(self, channel_name: bytes = b"") -> None:
+    def __init__(self, channel_name: bytes = b"", time_to_live: Optional[float] = None) -> None:
         """Creates a message queue for a given channel name.
 
         Args:
             channel_name (bytes, optional): Channel name. Defaults to b"".
         """
         self.channel_name = channel_name
-        self.time_to_live: float = 86400
+        self.time_to_live: float = time_to_live or 86400
         self.expiry: datetime = datetime.now() + timedelta(seconds=self.time_to_live)
 
         self.queue: Dict[int, DataMessage] = {}
@@ -109,10 +109,12 @@ class ClientQueue:
 
         Periodic callback to remove expired messages from the queue.
         """
+        print("Flushing messages.")
         for sequence in list(self.queue.keys()):
             try:
                 expiry = self.queue[sequence].get("expiry")
-                if expiry and expiry > datetime.now():
+                if expiry and datetime.now() > expiry:
                     del self.queue[sequence]
             except KeyError:
                 pass
+        self._set_messages_available()

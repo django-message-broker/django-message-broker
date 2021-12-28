@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Union
 import uuid
 
 from .server.channels_client import ChannelsClient
@@ -31,9 +31,10 @@ class ChannelsServerLayer(ChannelsClient, BaseChannelLayer):
             **kwargs,
         )
 
-        # Provides Django Channels compatible attribute access to message store
-        # TODO: Is Django channels list or dict?
-        self.channels: Dict = self.message_store
+
+    @property
+    def channels(self):
+        return list(self.message_store)
 
     def _coerce_bytes(self, value: Union[str, bytes]) -> bytes:
         """Coerce input of string or bytes to bytes.
