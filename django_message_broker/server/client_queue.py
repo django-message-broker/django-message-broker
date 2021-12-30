@@ -1,6 +1,7 @@
 import asyncio
 from asyncio.locks import Event
 from datetime import datetime, timedelta
+import sys
 from typing import Dict, Iterator, Optional
 
 from .utils import WeakPeriodicCallback
@@ -93,6 +94,7 @@ class ClientQueue:
 
         return message
 
+    @property
     def is_empty(self) -> bool:
         """Returns true if the queue is empty
 
@@ -101,15 +103,34 @@ class ClientQueue:
         """
         return len(self.queue) == 0
 
+    @property
+    def clients_waiting(self) -> bool:
+        """Returns true if there are clients waiting to receive a message.
+
+        Returns:
+            bool: True if clients waiting for a message.
+        """
+        # Count of references to messages_available:
+        # self + getrefcount + number of clients waiting to pull a message.
+        return (sys.getrefcount(self.messages_available) - 2) > 0
+
+    @property
     def can_be_flushed(self) -> bool:
-        return self.is_empty and (datetime.now() > self.expiry)
+        """True if the channel can be flushed from the message store.
+
+        To prevent asyncio cancelled errors, the channel is only flushed when there
+        are no clients waiting to receive a message.
+
+        Returns:
+            bool: True if the channel can be flushed.
+        """
+        return self.is_empty and not self.clients_waiting and (datetime.now() > self.expiry)
 
     def _flush_messages(self) -> None:
         """Remove expired messages from the queue.
 
         Periodic callback to remove expired messages from the queue.
         """
-        print("Flushing messages.")
         for sequence in list(self.queue.keys()):
             try:
                 expiry = self.queue[sequence].get("expiry")
