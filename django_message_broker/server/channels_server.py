@@ -199,16 +199,6 @@ class ChannelsServer:
         Args:
             message (DataMessage): Received data message.
         """
-        # DO NOT use setdefault to create a new channel. Setdefault always creates a new
-        # ChannelQueue object each time the function is called (ALL parameters to a function are calculated
-        # before the function is evaluated), therefore, it creates a new default object even if the
-        # key exists in the dictionary. When a ChannelQueue object is initialised it spawns a task on
-        # the event loop, however, if the key already exists and the ChannelQueue object is not used,
-        # then the spawned event loop in ChannelQueue is not stopped and the object is not deleted (The
-        # task creates a reference to the ChannelQueue object so the reference count never drops to zero
-        # and __del__ is never called). This creates a memory leak which persists until the message store
-        # is flushed, at which point the tasks will terminate in such a way that the CancelledError exceptions
-        # cannot be caught.
         channel_name = message.channel_name
         channel_queue = self.message_store.get(channel_name)
         if channel_queue is None:

@@ -2,6 +2,7 @@ import sys
 import unittest
 from django_message_broker.server.utils import IntegerSequence, WeakPeriodicCallback, PeriodicCallback
 
+
 class IntegerSequenceTests(unittest.TestCase):
 
     def test_next(self):
@@ -65,7 +66,4 @@ class WeakPeriodCallbackTests(unittest.TestCase):
         # When the weak referenced periodic callback stops the reference count
         # does not change.
         self.weak_periodic_callback.stop()
-        self.assertEqual(sys.getrefcount(self.weak_periodic_callback), 2)      
-
-if __name__ == '__main__':
-    unittest.main()
+        self.assertEqual(sys.getrefcount(self.weak_periodic_callback), 2)

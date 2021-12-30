@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 import uuid
 
 from .server.channels_client import ChannelsClient
@@ -31,9 +31,13 @@ class ChannelsServerLayer(ChannelsClient, BaseChannelLayer):
             **kwargs,
         )
 
-
     @property
-    def channels(self):
+    def channels(self) -> List[bytes]:
+        """Return list of channel names.
+
+        Returns:
+            List[bytes]: List of channel names.
+        """
         return list(self.message_store)
 
     def _coerce_bytes(self, value: Union[str, bytes]) -> bytes:
@@ -74,6 +78,9 @@ class ChannelsServerLayer(ChannelsClient, BaseChannelLayer):
             channel (str): Channel name
             message (Dict): Message to send
         """
+        # TODO: Need to add check for capacity -> however, need to determine what would
+        # be effective as the limitation is receive capacity not send. Though could limit number
+        # of channels.
         # Typecheck
         assert isinstance(message, dict), "message is not a dict"
         assert self.valid_channel_name(channel), "Channel name not valid"

@@ -52,7 +52,8 @@ class ChannelsClient:
 
         self.group_store: Dict[bytes, Dict[bytes, datetime]] = {}
 
-        self.signalling_lock: Event = Event()
+        # self.signalling_lock: Event = Event()
+        self.signalling_response_event: Dict[bytes, Event] = {}
 
         # Setup the zmq context, event loop and sockets.
         # Note: the client uses the asyncio context.
@@ -124,6 +125,15 @@ class ChannelsClient:
         for queue in queues:
             if self.message_store[queue].can_be_flushed:
                 del self.message_store[queue]
+
+    async def _await_response(self, message_id: bytes) -> None:
+        """Creates an event which is set when a confirmation message is received from the server.
+
+        Args:
+            message_id (bytes): Message id of the sent message for which a response is required.
+        """
+        self.signalling_response_event[message_id] = Event()
+        await self.signalling_response_event[message_id].wait()
 
     def _get_routing_id(self) -> str:
         """Returns the routing id from the zmq.DEALER socket used to route message from
@@ -227,6 +237,7 @@ class ChannelsClient:
             properties={"group_name": group_name, "channel_name": channel_name},
         )
         await add_group_message.send(self.signalling_manager.get_socket())
+        await self._await_response(add_group_message.id)
 
     async def _group_discard(self, group_name: bytes, channel_name: bytes) -> None:
         """Removes a channel from a group
@@ -240,6 +251,7 @@ class ChannelsClient:
             properties={"group_name": group_name, "channel_name": channel_name},
         )
         await discard_group_message.send(self.signalling_manager.get_socket())
+        await self._await_response(discard_group_message.id)
 
     def _receive_data(self, multipart_message: Union[Future, List]) -> None:
         """Callback that receives data messages from the server and dispatches
@@ -275,16 +287,6 @@ class ChannelsClient:
         Args:
             message (DataMessage): Data message.
         """
-        # DO NOT use setdefault to create a new channel. Setdefault always creates a new
-        # ChannelQueue object each time the function is called (ALL parameters to a function are calculated
-        # before the function is evaluated), therefore, it creates a new default object even if the
-        # key exists in the dictionary. When a ChannelQueue object is initialised it spawns a task on
-        # the event loop, however, if the key already exists and the ChannelQueue object is not used,
-        # then the spawned event loop in ChannelQueue is not stopped and the object is not deleted (The
-        # task creates a reference to the ChannelQueue object so the reference count never drops to zero
-        # and __del__ is never called). This creates a memory leak which persists until the message store
-        # is flushed, at which point the tasks will terminate in such a way that the CancelledError exceptions
-        # cannot be caught.
         subscriber_name = message.channel_name
         channel_queue = self.message_store.get(subscriber_name)
         if channel_queue is None:
@@ -337,16 +339,15 @@ class ChannelsClient:
     def _signalling_task_complete(self, message: SignallingMessage) -> None:
         """Response from server indicating that the signalling command completed successfully.
 
-        This method does not implement any actions. Signalling messages are sent asynchronously.
-        There are potential conditions when a thread may wish to wait for confirmation that an
-        action has completed before proceeding with the next action. This will a lock which is
-        cleared once a task complete message, an exception message has been received or a timeout
-        occurs.
+        Called when a signalling message confirms that actions have completed. This then sets
+        an event to release the signalling send thread to execute subsequent instructions.
 
         Args:
             message (SignallingMessage): Signalling message
         """
-        pass
+        event = self.signalling_response_event.get(message.id, None)
+        if event:
+            event.set()
 
     def _signalling_exception(self, message: SignallingMessage) -> None:
         """Response from server indicating that the signalling command generated a caught exception.

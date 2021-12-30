@@ -80,17 +80,12 @@ async def test_groups_basic(channel_layer):
     """
     Tests basic group operation.
 
-    ISSUE: Message is sent before group operations are completed on the server.
-    Therefore, message is sent to group before channels two and three are added.
-    Temp solution is to wait for operations to complete.
-    Full solution is to block execution until confirmation that signalling message complete.
     """
     channel_layer = ChannelsServerLayer()
     await channel_layer.group_add("test-group", "test-gr-chan-1")
     await channel_layer.group_add("test-group", "test-gr-chan-2")
     await channel_layer.group_add("test-group", "test-gr-chan-3")
     await channel_layer.group_discard("test-group", "test-gr-chan-2")
-    await asyncio.sleep(1.0)
     await channel_layer.group_send("test-group", {"type": "message.1"})
     # Make sure we get the message on the two channels that were in
     async with async_timeout.timeout(1):
