@@ -48,8 +48,8 @@ class ChannelsClient:
         self.port = port
 
         self.message_store: Dict[bytes, ClientQueue] = {}
-        self.channel_time_to_live = 86400      
-  
+        self.channel_time_to_live = 86400
+
         self.group_store: Dict[bytes, Dict[bytes, datetime]] = {}
 
         self.signalling_lock: Event = Event()
@@ -121,11 +121,9 @@ class ChannelsClient:
     def _flush_queues(self) -> None:
         """Periodic callback to flush queues where there are no subscribers or messages."""
         queues = list(self.message_store.keys())
-        print("Flushing queue.")
         for queue in queues:
-            if self.message_store[queue].can_be_flushed():
+            if self.message_store[queue].can_be_flushed:
                 del self.message_store[queue]
-                print("Queue flushed.")
 
     def _get_routing_id(self) -> str:
         """Returns the routing id from the zmq.DEALER socket used to route message from
@@ -158,9 +156,7 @@ class ChannelsClient:
             self.message_store[subscriber_name] = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
         message = None
         while message is None:
-            print(f"Await receive.")
             message = await self.message_store[subscriber_name].pull()
-            print(f"Message received. {message}")
 
         return message.get_body()
 
@@ -197,7 +193,6 @@ class ChannelsClient:
             body=message,
         )
         await data_message.send(self.data_manager.get_socket())
-        print(f"Message sent: {data_message}")
 
     async def _send_to_group(
         self, group_name: bytes, message: Dict, time_to_live: float = 60
