@@ -3,7 +3,7 @@ from asyncio.locks import Event
 from datetime import datetime
 import uuid
 from tornado.ioloop import IOLoop, PeriodicCallback
-from typing import Callable, Dict, List, Union
+from typing import Dict, List, Union
 from zmq.asyncio import Context
 
 from .client_queue import ClientQueue
@@ -14,6 +14,7 @@ from .exceptions import (
 )
 from .signalling_message import SignallingMessage, SignallingMessageCommands
 from .socket_manager import SocketManager
+from .utils import MethodRegistry
 
 
 class ChannelsClient:
@@ -29,6 +30,13 @@ class ChannelsClient:
 
     + Signalling port (base port + 1, default=5557): Transmission of signalling messages between the client and server.
     """
+    class DataCommands(MethodRegistry):
+        """Create registry of data commands using decorator."""
+        pass
+
+    class SignallingCommands(MethodRegistry):
+        """Create registry of signalling commands using decorator."""
+        pass
 
     def __init__(
         self, *args, ip_address: str = "127.0.0.1", port: int = 5556, **kwargs,
@@ -44,13 +52,16 @@ class ChannelsClient:
         """
         super().__init__(*args, **kwargs)
 
-        self.ip_address = ip_address
-        self.port = port
-
         self.message_store: Dict[bytes, ClientQueue] = {}
+        self.group_store: Dict[bytes, Dict[bytes, datetime]] = {}
         self.channel_time_to_live = 86400
 
-        self.group_store: Dict[bytes, Dict[bytes, datetime]] = {}
+        # Create jump dictionaries to index callable methods on message commands.
+        self.data_callables = ChannelsClient.DataCommands.get_bound_callables(self)
+        self.signalling_callables = ChannelsClient.SignallingCommands.get_bound_callables(self)
+
+        self.ip_address = ip_address
+        self.port = port
 
         # self.signalling_lock: Event = Event()
         self.signalling_response_event: Dict[bytes, Event] = {}
@@ -89,26 +100,6 @@ class ChannelsClient:
             self._flush_queues, callback_time=1000, jitter=0.1
         )
 
-        # Create dictionary of datamessage command methods.
-        self.data_msg_calls: Dict[bytes, Callable[[DataMessage], None]] = {}
-        self.data_msg_calls[DataMessageCommands.DELIVERY] = self._delivery
-        self.data_msg_calls[
-            DataMessageCommands.SUBSCRIPTION_ERROR
-        ] = self._subscription_error
-        self.data_msg_calls[DataMessageCommands.KEEPALIVE] = self._no_operation
-
-        self.sig_msg_calls: Dict[bytes, Callable[[SignallingMessage], None]] = {}
-        self.sig_msg_calls[
-            SignallingMessageCommands.COMPLETE
-        ] = self._signalling_task_complete
-        self.sig_msg_calls[
-            SignallingMessageCommands.EXCEPTION
-        ] = self._signalling_exception
-        self.sig_msg_calls[
-            SignallingMessageCommands.PERFORMANCE_REPORT
-        ] = self._no_operation
-        self.sig_msg_calls[SignallingMessageCommands.KEEPALIVE] = self._no_operation
-
         # Open sockets
         self.data_manager.start()
         self.signalling_manager.start()
@@ -126,6 +117,7 @@ class ChannelsClient:
             if self.message_store[queue].can_be_flushed:
                 del self.message_store[queue]
 
+    # TODO: Change to await signalling response & add data response.
     async def _await_response(self, message_id: bytes) -> None:
         """Creates an event which is set when a confirmation message is received from the server.
 
@@ -170,6 +162,7 @@ class ChannelsClient:
 
         return message.get_body()
 
+    # Add unsubscribe
     async def _subscribe(self, channel_name: bytes, subscriber_name: bytes) -> None:
         """Subscribes to a channel to ensure that messages are delivered to the client.
 
@@ -187,7 +180,7 @@ class ChannelsClient:
         await subscribe_message.send(self.data_manager.get_socket())
 
     async def _send(
-        self, channel_name: bytes, message: Dict, time_to_live: float = 60
+        self, channel_name: bytes, message: Dict, time_to_live: float = 60, acknowledge=False
     ) -> None:
         """Sends a message to a channel.
 
@@ -196,13 +189,25 @@ class ChannelsClient:
             message (Dict): Message to send (as a dictionary)
             time_to_live (float, optional): Time to live (seconds). Defaults to 60.
         """
+        # TODO: Send with acknowledgement.
         data_message = DataMessage(
             channel_name=channel_name,
             command=DataMessageCommands.SEND_TO_CHANNEL,
-            properties={"ttl": time_to_live},
+            properties={
+                "ttl": time_to_live,
+                "ack": acknowledge
+            },
             body=message,
         )
         await data_message.send(self.data_manager.get_socket())
+        if acknowledge:
+            # TODO: If acknowledge await response
+            pass
+
+    # TODO: Add pull a message from a channel (for cases where we do not want to store it locally)
+    async def _pull(self, channel_name: bytes) -> None:
+        """Waits for messages on the channel then pulls the first available."""
+        pass
 
     async def _send_to_group(
         self, group_name: bytes, message: Dict, time_to_live: float = 60
@@ -272,7 +277,7 @@ class ChannelsClient:
 
         command = message.command
         if command:
-            call_function = self.data_msg_calls.get(command)
+            call_function = self.data_callables.get(command)
             if call_function:
                 call_function(message)
             else:
@@ -280,6 +285,7 @@ class ChannelsClient:
         else:
             MessageCommandUnknown("No command sent with the message. {message}")
 
+    @DataCommands.register(command=DataMessageCommands.DELIVERY)
     def _delivery(self, message: DataMessage) -> None:
         """Receive a message for delivery to subscribers of a channel and pushes it onto
         a message queue for later collection by the client method.
@@ -294,6 +300,7 @@ class ChannelsClient:
             self.message_store[subscriber_name] = channel_queue
         channel_queue.push(message)
 
+    @DataCommands.register(command=DataMessageCommands.SUBSCRIPTION_ERROR)
     def _subscription_error(self, message: DataMessage) -> None:
         """Attempt to subscribe to a channel failed.
 
@@ -326,7 +333,7 @@ class ChannelsClient:
         if message:
             command = message.command
             if command:
-                call_function = self.sig_msg_calls.get(command)
+                call_function = self.signalling_callables.get(command)
                 if call_function:
                     call_function(message)
                 else:
@@ -336,6 +343,7 @@ class ChannelsClient:
                     "No command sent with the message. {message}"
                 )
 
+    @SignallingCommands.register(command=SignallingMessageCommands.COMPLETE)
     def _signalling_task_complete(self, message: SignallingMessage) -> None:
         """Response from server indicating that the signalling command completed successfully.
 
@@ -349,6 +357,7 @@ class ChannelsClient:
         if event:
             event.set()
 
+    @SignallingCommands.register(command=SignallingMessageCommands.EXCEPTION)
     def _signalling_exception(self, message: SignallingMessage) -> None:
         """Response from server indicating that the signalling command generated a caught exception.
 
@@ -359,14 +368,6 @@ class ChannelsClient:
 
         Args:
             message (SignallingMessage): Signalling message
-        """
-        pass
-
-    def _no_operation(self, _: Union[DataMessage, SignallingMessage]) -> None:
-        """No operations called when messages are not implemented
-
-        Args:
-            _ (SignallingMessage): Dummy parameter
         """
         pass
 

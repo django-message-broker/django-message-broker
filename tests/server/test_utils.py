@@ -1,6 +1,6 @@
 import sys
 import unittest
-from django_message_broker.server.utils import IntegerSequence, WeakPeriodicCallback, PeriodicCallback
+from django_message_broker.server.utils import IntegerSequence, WeakPeriodicCallback, PeriodicCallback, MethodRegistry
 
 
 class IntegerSequenceTests(unittest.TestCase):
@@ -55,7 +55,7 @@ class WeakPeriodCallbackTests(unittest.TestCase):
         # When we stop the callback the reference count should reduce again.
         self.periodic_callback.stop()
         self.assertEqual(sys.getrefcount(self.periodic_callback), 2)
-    
+
     def test_weak_ref(self):
         self.weak_periodic_callback = WeakPeriodicCallbackCase()
         self.assertEqual(sys.getrefcount(self.weak_periodic_callback), 2)
@@ -67,3 +67,30 @@ class WeakPeriodCallbackTests(unittest.TestCase):
         # does not change.
         self.weak_periodic_callback.stop()
         self.assertEqual(sys.getrefcount(self.weak_periodic_callback), 2)
+
+
+class MathsByName:
+    # Create a registry of math functions
+    class MathFunctions(MethodRegistry):
+        pass
+
+    def __init__(self):
+        # Bind methods to instance
+        self.maths = MathsByName.MathFunctions.get_bound_callables(self)
+
+    @MathFunctions.register(command=b"plusOne")
+    def f1(self, a):
+        return a + 1
+
+    @MathFunctions.register(command=b"sumTwo")
+    def f2(self, a, b):
+        return a + b
+
+
+class MethodRegistryTest(unittest.TestCase):
+
+    def test_functions(self):
+        myMaths = MathsByName()
+
+        self.assertEqual(myMaths.maths[b"plusOne"](1), 2)
+        self.assertEqual(myMaths.maths[b"sumTwo"](1, 2), 3)

@@ -2,7 +2,7 @@ import asyncio
 from asyncio.futures import Future
 from datetime import datetime, timedelta
 from tornado.ioloop import IOLoop, PeriodicCallback
-from typing import Callable, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 import zmq
 
 from .server_queue import ChannelQueue, Endpoint
@@ -15,6 +15,7 @@ from .exceptions import (
 )
 from .signalling_message import SignallingMessage, SignallingMessageCommands
 from .socket_manager import SocketManager
+from .utils import MethodRegistry
 
 
 class ChannelsServer:
@@ -30,6 +31,14 @@ class ChannelsServer:
     + Signalling port (base port + 1, default=5557): Transmission of signalling messages between the client and server.
     """
 
+    class DataCommands(MethodRegistry):
+        """Create registry of data commands using decorator."""
+        pass
+
+    class SignallingCommands(MethodRegistry):
+        """Create registry of signalling commands using decorator."""
+        pass
+
     def __init__(self, ip_address: str = "127.0.0.1", port: int = 5556):
         """Message server for Django Channels.
 
@@ -43,6 +52,10 @@ class ChannelsServer:
         # Create message store and groups store.
         self.message_store: Dict[bytes, ChannelQueue] = {}
         self.group_store: Dict[bytes, Dict[bytes, datetime]] = {}
+
+        # Create jump dictionaries to index callable methods on message commands.
+        self.data_callables = ChannelsServer.DataCommands.get_bound_callables(self)
+        self.signalling_callables = ChannelsServer.SignallingCommands.get_bound_callables(self)
 
         # Create zmq context, event loop and sockets
         # Note the server uses the zmq context
@@ -73,24 +86,6 @@ class ChannelsServer:
         self.flush_groups_callback = PeriodicCallback(
             self._flush_groups, callback_time=5000, jitter=0.1
         )
-
-        # Create dictionary of data message command methods.
-        self.data_msg_calls: Dict[bytes, Callable[[DataMessage], None]] = {}
-        self.data_msg_calls[DataMessageCommands.SUBSCRIBE] = self._subscribe
-        self.data_msg_calls[DataMessageCommands.SEND_TO_CHANNEL] = self._send_to_channel
-        self.data_msg_calls[DataMessageCommands.SEND_TO_GROUP] = self._send_to_group
-        self.data_msg_calls[DataMessageCommands.KEEPALIVE] = self._no_operation
-
-        # Create dictionary of signalling message command methods.
-        self.sig_msg_calls: Dict[bytes, Callable[[SignallingMessage], None]] = {}
-        self.sig_msg_calls[SignallingMessageCommands.GROUP_ADD] = self._group_add
-        self.sig_msg_calls[
-            SignallingMessageCommands.GROUP_DISCARD
-        ] = self._group_discard
-        self.sig_msg_calls[SignallingMessageCommands.FLUSH] = self._flush_all
-        self.sig_msg_calls[SignallingMessageCommands.PRINT] = self._print
-        self.sig_msg_calls[SignallingMessageCommands.PERFORMANCE] = self._no_operation
-        self.sig_msg_calls[SignallingMessageCommands.KEEPALIVE] = self._no_operation
 
     def start(self) -> None:
         """Start the channels server.
@@ -144,7 +139,7 @@ class ChannelsServer:
 
         command = message.command
         if command:
-            call_function = self.data_msg_calls.get(command)
+            call_function = self.data_callables.get(command)
             if call_function:
                 call_function(message)
             else:
@@ -152,6 +147,7 @@ class ChannelsServer:
         else:
             MessageCommandUnknown("No command sent with the message. {message}")
 
+    @DataCommands.register(command=DataMessageCommands.SUBSCRIBE)
     def _subscribe(self, message: DataMessage) -> None:
         """Command handler for SUBCHANX: Subscribe to a channel.
 
@@ -189,6 +185,7 @@ class ChannelsServer:
             subscription_error.properties = {"exception": repr(exception)}
             asyncio.create_task(subscription_error.send(self.data_port.get_socket()))
 
+    @DataCommands.register(command=DataMessageCommands.SEND_TO_CHANNEL)
     def _send_to_channel(self, message: DataMessage) -> None:
         """Command handler for SENDCHAN: Send message to a channel.
 
@@ -210,6 +207,7 @@ class ChannelsServer:
             time_to_live: float = 60
         channel_queue.push(message, time_to_live=time_to_live)
 
+    @DataCommands.register(command=DataMessageCommands.SEND_TO_GROUP)
     def _send_to_group(self, message: DataMessage) -> None:
         """Command handler for SENDGRPX: Send message to a group.
 
@@ -248,7 +246,7 @@ class ChannelsServer:
             try:
                 command = message.command
                 if command:
-                    call_function = self.sig_msg_calls.get(command)
+                    call_function = self.signalling_callables.get(command)
                     if call_function:
                         call_function(message)
                         message.command = SignallingMessageCommands.COMPLETE
@@ -264,6 +262,7 @@ class ChannelsServer:
 
             asyncio.create_task(message.send(self.signalling_port.get_socket()))
 
+    @SignallingCommands.register(command=SignallingMessageCommands.GROUP_ADD)
     def _group_add(self, message: SignallingMessage) -> None:
         """Command handler for GROUPADD: Add channel to group.
 
@@ -293,6 +292,7 @@ class ChannelsServer:
             )
             self.group_store[group_as_bytes] = group_entry
 
+    @SignallingCommands.register(command=SignallingMessageCommands.GROUP_DISCARD)
     def _group_discard(self, message: SignallingMessage) -> None:
         """Command handler for GROUPDIS: Remove channel from group.
 
@@ -318,6 +318,7 @@ class ChannelsServer:
             except KeyError:
                 pass
 
+    @SignallingCommands.register(command=SignallingMessageCommands.FLUSH)
     def _flush_all(self, _: SignallingMessage) -> None:
         """Command handler for FLUSHXXX: Reset the server.
 
@@ -332,6 +333,7 @@ class ChannelsServer:
         self.message_store: Dict[bytes, ChannelQueue] = {}
         self.group_store: Dict[bytes, Dict[bytes, datetime]] = {}
 
+    @SignallingCommands.register(command=SignallingMessageCommands.PRINT)
     def _print(self, _: SignallingMessage) -> None:
         """Command handler for PRINTXXX: Print server contents.
 
@@ -347,14 +349,6 @@ class ChannelsServer:
         print("--- GROUP STORE ---")
         print(self.group_store)
         print("--- END GROUP STORE ---")
-
-    def _no_operation(self, _: Union[DataMessage, SignallingMessage]) -> None:
-        """No operations called when messages are not implemented
-
-        Args:
-            _ (SignallingMessage): Dummy parameter
-        """
-        pass
 
     def _flush_queues(self) -> None:
         """Periodic callback to flush queues where there are no subscribers or messages."""
