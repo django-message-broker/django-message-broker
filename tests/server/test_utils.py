@@ -1,4 +1,5 @@
 import sys
+import pytest
 import unittest
 from django_message_broker.server.utils import IntegerSequence, WeakPeriodicCallback, PeriodicCallback, MethodRegistry
 
@@ -67,6 +68,33 @@ class WeakPeriodCallbackTests(unittest.TestCase):
         # does not change.
         self.weak_periodic_callback.stop()
         self.assertEqual(sys.getrefcount(self.weak_periodic_callback), 2)
+
+
+class MethodRegistryExceptionTests(unittest.TestCase):
+
+    def test_no_command_exception(self):
+        with pytest.raises(Exception):
+            class NoCommand:
+                class Registry(MethodRegistry):
+                    pass
+
+                @Registry.register()
+                def f1(self):
+                    pass
+
+    def test_duplicate_commands_exception(self):
+        with pytest.raises(Exception):
+            class DuplicateCommands:
+                class Registry(MethodRegistry):
+                    pass
+
+                @Registry.register(command=b"one")
+                def f1(self):
+                    pass
+
+                @Registry.register(command=b"one")
+                def f2(self):
+                    pass
 
 
 class MathsByName:
