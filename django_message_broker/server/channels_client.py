@@ -317,9 +317,10 @@ class ChannelsClient:
         """Attempt to subscribe to a channel failed.
 
         This method does not implement any actions. Potential implementations for this command are:
-        1/ Raise an exception in the client.
-        2/ Identify where the subscription request originated (based upon message id) and then raise
-        an exception in the relevant receiving method.
+
+        1.  Raise an exception in the client.
+        2.  Identify where the subscription request originated (based upon message id) and then raise
+            an exception in the relevant receiving method.
 
         Args:
             message (DataMessage): Data message.
@@ -374,9 +375,10 @@ class ChannelsClient:
         """Response from server indicating that the signalling command generated a caught exception.
 
         This method does not implement any actions. Potential implementations for this command are:
-        1/ Raise an exception in the client.
-        2/ Identify where the subscription request originated (based upon message id) and then raise
-        an exception in the relevant receiving method.
+
+        1.  Raise an exception in the client.
+        2.  Identify where the subscription request originated (based upon message id) and then raise
+            an exception in the relevant receiving method.
 
         Args:
             message (SignallingMessage): Signalling message

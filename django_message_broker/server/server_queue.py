@@ -39,8 +39,8 @@ class RoundRobinDict(UserDict):
 
     Notes:
 
-    1. Returns the value of the dictionary entry, not the key
-    2. StopIteration exception is not raised when the dictionary rolls over to the start.
+    1.  Returns the value of the dictionary entry, not the key
+    2.  StopIteration exception is not raised when the dictionary rolls over to the start.
     """
 
     def __init__(self, *args, **kwargs) -> None:
