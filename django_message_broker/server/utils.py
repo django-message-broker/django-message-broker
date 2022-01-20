@@ -120,11 +120,13 @@ Example usage:
         if command in cls.callables:
             raise Exception(f"Command '{command}' can only be bound to one function.")
 
-        def wrapper(func: Callable) -> Callable:
+        def decorator(func: Callable) -> Callable:
+            # We don't wrap the function, only register it with the command
+            # and return the original function.
             cls.callables[command] = func
             return func
 
-        return wrapper
+        return decorator
 
     @classmethod
     def get_bound_callables(cls, self) -> Dict[bytes, Callable]:
