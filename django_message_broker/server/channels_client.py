@@ -142,7 +142,7 @@ class ChannelsClient:
     def _get_routing_id(self) -> str:
         """Returns the routing id from the zmq.DEALER socket used to route message from
         the server to the client. The routing id is a 32-bit unsigned integer which is
-        appended to the string "zmq_id_" to provide a unique channels client identifier.
+        appended to the string `zmq_id_` to provide a unique channels client identifier.
 
         Returns:
             str: Routing id
