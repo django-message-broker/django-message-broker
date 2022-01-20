@@ -63,7 +63,9 @@ class ChannelsClient:
         self.ip_address = ip_address
         self.port = port
 
-        # self.signalling_lock: Event = Event()
+        # Dictionary to containing locks awaiting confirmation that a message
+        # was processed by server.
+        self.data_response_event: Dict[bytes, Event] = {}
         self.signalling_response_event: Dict[bytes, Event] = {}
 
         # Setup the zmq context, event loop and sockets.
@@ -117,9 +119,19 @@ class ChannelsClient:
             if self.message_store[queue].can_be_flushed:
                 del self.message_store[queue]
 
-    # TODO: Change to await signalling response & add data response.
-    async def _await_response(self, message_id: bytes) -> None:
-        """Creates an event which is set when a confirmation message is received from the server.
+    async def _await_data_response(self, message_id: bytes) -> None:
+        """Creates an event which is set when a confirmation message is received on the
+        data channel from the server.
+
+        Args:
+            message_id (bytes): Message id of the sent message for which a response is required.
+        """
+        self.data_response_event[message_id] = Event()
+        await self.data_response_event[message_id].wait()
+
+    async def _await_signalling_response(self, message_id: bytes) -> None:
+        """Creates an event which is set when a confirmation message is received on the
+        signalling channel from the server.
 
         Args:
             message_id (bytes): Message id of the sent message for which a response is required.
@@ -242,7 +254,7 @@ class ChannelsClient:
             properties={"group_name": group_name, "channel_name": channel_name},
         )
         await add_group_message.send(self.signalling_manager.get_socket())
-        await self._await_response(add_group_message.id)
+        await self._await_signalling_response(add_group_message.id)
 
     async def _group_discard(self, group_name: bytes, channel_name: bytes) -> None:
         """Removes a channel from a group
@@ -256,7 +268,7 @@ class ChannelsClient:
             properties={"group_name": group_name, "channel_name": channel_name},
         )
         await discard_group_message.send(self.signalling_manager.get_socket())
-        await self._await_response(discard_group_message.id)
+        await self._await_signalling_response(discard_group_message.id)
 
     def _receive_data(self, multipart_message: Union[Future, List]) -> None:
         """Callback that receives data messages from the server and dispatches
