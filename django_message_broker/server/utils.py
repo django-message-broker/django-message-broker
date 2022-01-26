@@ -117,8 +117,8 @@ Example usage:
         if command is None:
             raise Exception("Command must be named in the decorator.")
 
-        if command in cls.callables:
-            raise Exception(f"Command '{command}' can only be bound to one function.")
+        # if command in cls.callables:
+        #     raise Exception(f"Command '{command}' can only be bound to one function.")
 
         def decorator(func: Callable) -> Callable:
             # We don't wrap the function, only register it with the command
