@@ -155,6 +155,11 @@ class ChannelsClient:
     def _get_subscriber_id(self) -> bytes:
         return f"sub_id_{uuid.uuid4().hex}".encode("utf-8")
 
+    # # TODO: Add pull a message from a channel (for cases where we do not want to store it locally)
+    # async def _pull(self, channel_name: bytes) -> None:
+    #     """Waits for messages on the channel then pulls the first available."""
+    #     pass
+
     async def _receive(self, subscriber_name: bytes) -> Dict:
         """Receive the first message that arrives on the channel.
         If more than one coroutine waits on the same channel, a random one
@@ -174,7 +179,7 @@ class ChannelsClient:
 
         return message.get_body()
 
-    # Add unsubscribe
+    # TODO: Add unsubscribe
     async def _subscribe(self, channel_name: bytes, subscriber_name: bytes) -> None:
         """Subscribes to a channel to ensure that messages are delivered to the client.
 
@@ -200,8 +205,8 @@ class ChannelsClient:
             channel (Union[str, bytes]): Channel name
             message (Dict): Message to send (as a dictionary)
             time_to_live (float, optional): Time to live (seconds). Defaults to 60.
+            acknowledge (bool): Await server has processed message. Defaults to False.
         """
-        # TODO: Send with acknowledgement.
         data_message = DataMessage(
             channel_name=channel_name,
             command=DataMessageCommands.SEND_TO_CHANNEL,
@@ -213,13 +218,9 @@ class ChannelsClient:
         )
         await data_message.send(self.data_manager.get_socket())
         if acknowledge:
-            # TODO: If acknowledge await response
-            pass
-
-    # TODO: Add pull a message from a channel (for cases where we do not want to store it locally)
-    async def _pull(self, channel_name: bytes) -> None:
-        """Waits for messages on the channel then pulls the first available."""
-        pass
+            # TODO: Provide acknowledgement from server
+            # TODO: Add test cases
+            await self._await_data_response(data_message.id)
 
     async def _send_to_group(
         self, group_name: bytes, message: Dict, time_to_live: float = 60
@@ -316,16 +317,43 @@ class ChannelsClient:
     def _subscription_error(self, message: DataMessage) -> None:
         """Attempt to subscribe to a channel failed.
 
-        This method does not implement any actions. Potential implementations for this command are:
-
-        1.  Raise an exception in the client.
-        2.  Identify where the subscription request originated (based upon message id) and then raise
-            an exception in the relevant receiving method.
-
         Args:
             message (DataMessage): Data message.
         """
-        pass
+        event = self.data_response_event.get(message.id, None)
+        if event:
+            event.set()
+
+        exception_message = message.properties.get("exception")
+
+        raise ChannelsServerError(exception_message)
+
+    @DataCommands.register(command=DataMessageCommands.COMPLETE)
+    def _data_task_complete(self, message: DataMessage) -> None:
+        """Response from server indicating that the data command completed successfully.
+
+        Called when a data message confirms that actions have completed. This then sets
+        an event to release the data send thread to execute subsequent instructions.
+
+        Args:
+            message (SignallingMessage): Signalling message
+        """
+        event = self.signalling_response_event.get(message.id, None)
+        if event:
+            event.set()
+
+    @DataCommands.register(command=DataMessageCommands.EXCEPTION)
+    def _data_exception(self, message: DataMessage) -> None:
+        """Response from server indicating that the data command generated a caught exception.
+
+        Args:
+            message (SignallingMessage): Signalling message
+        """
+        event = self.signalling_response_event.get(message.id, None)
+        if event:
+            event.set()
+
+        raise ChannelsServerError("Exception raised by the server in data.")
 
     def _receive_signalling(self, multipart_message: Union[Future, List]) -> None:
         """Callback that receives signalling messages from the server and dispatches
@@ -374,17 +402,16 @@ class ChannelsClient:
     def _signalling_exception(self, message: SignallingMessage) -> None:
         """Response from server indicating that the signalling command generated a caught exception.
 
-        This method does not implement any actions. Potential implementations for this command are:
-
-        1.  Raise an exception in the client.
-        2.  Identify where the subscription request originated (based upon message id) and then raise
-            an exception in the relevant receiving method.
-
         Args:
             message (SignallingMessage): Signalling message
         """
-        pass
+        event = self.signalling_response_event.get(message.id, None)
+        if event:
+            event.set()
 
+        raise ChannelsServerError("Exception raised by the server in signalling.")
+
+    @SignallingCommands.register(command=SignallingMessageCommands.FLUSH_CLIENT)
     def _flush_messages(self, message: SignallingMessage) -> None:
         """Response from server indicating that the client should flush message which have not
         yet been received.

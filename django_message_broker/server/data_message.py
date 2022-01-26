@@ -23,10 +23,13 @@ class DataMessageCommands:
     + SUBSCRIBE (b"SUBCHANX") - Subscribe to a channel.
     + SEND_TO_CHANNEL (b"SENDCHAN") - Send this message to a channel.
     + SEND_TO_GROUP (b"SENDGRPX") - Send this message to a group.
+    + PULL (b"PULLXXXX") - Waits for data on channel in server, pulls first available message.
 
     **Server to client**:
 
     + DELIVERY (b"DELIVERY") - Deliver this message to a client.
+    + COMPLETE (b"COMPLETE") - Command complete
+    + EXCEPTION (b"EXCEPTON") - Command raised an exception.
     + SUBSCRIPTION_ERROR (b"ESUBCHAN") - Error subscribing to channel.
 
     **Both ways**:
@@ -37,8 +40,11 @@ class DataMessageCommands:
     SUBSCRIBE = b"SUBCHANX"
     SEND_TO_CHANNEL = b"SENDCHAN"
     SEND_TO_GROUP = b"SENDGRPX"
+    PULL = b"PULLXXXX"
     DELIVERY = b"DELIVERY"
     SUBSCRIPTION_ERROR = b"ESUBCHAN"
+    COMPLETE = b"COMPLETE"
+    EXCEPTION = b"EXCEPTON"
     KEEPALIVE = b"HARTBEAT"
 
 
