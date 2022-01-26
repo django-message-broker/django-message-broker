@@ -14,3 +14,4 @@ are documented to facilitate integration with other applications.
 
     public_api
     internal_api
+    messaging
