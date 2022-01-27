@@ -101,6 +101,9 @@ Example usage:
     sum_two = myMaths.maths[b"sumTwo"](1, 2)  # result = 3
 """
 
+    # This creates a shared registry across all MethodRegistry subclasses within an enclosing class
+    # If more than one registry is required in a class then callables needs to be defined in the scope
+    # of the subclass.
     callables: Dict[bytes, Callable] = {}
 
     @classmethod
@@ -117,8 +120,8 @@ Example usage:
         if command is None:
             raise Exception("Command must be named in the decorator.")
 
-        # if command in cls.callables:
-        #     raise Exception(f"Command '{command}' can only be bound to one function.")
+        if command in cls.callables:
+            raise Exception(f"Command '{command}' can only be bound to one function.")
 
         def decorator(func: Callable) -> Callable:
             # We don't wrap the function, only register it with the command

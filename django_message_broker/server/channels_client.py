@@ -3,7 +3,7 @@ from asyncio.locks import Event
 from datetime import datetime
 import uuid
 from tornado.ioloop import IOLoop, PeriodicCallback
-from typing import Dict, List, Union
+from typing import Callable, Dict, List, Union
 from zmq.asyncio import Context
 
 from .client_queue import ClientQueue
@@ -32,11 +32,13 @@ class ChannelsClient:
     """
     class DataCommands(MethodRegistry):
         """Create registry of data commands using decorator."""
-        pass
+        # We need to create the registry in the subclass when there is more than one registry.
+        callables: Dict[bytes, Callable] = {}
 
     class SignallingCommands(MethodRegistry):
         """Create registry of signalling commands using decorator."""
-        pass
+        # We need to create the registry in the subclass when there is more than one registry.
+        callables: Dict[bytes, Callable] = {}
 
     def __init__(
         self, *args, ip_address: str = "127.0.0.1", port: int = 5556, **kwargs,
