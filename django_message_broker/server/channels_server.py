@@ -114,6 +114,11 @@ class ChannelsServer:
             self.flush_groups_callback.stop()
             self.flush_queues_callback.stop()
 
+            for channel_name, channel_queue in self.message_store.items():
+                channel_queue.stop()
+            self.message_store: Dict[bytes, ChannelQueue] = {}
+            self.group_store: Dict[bytes, Dict[bytes, datetime]] = {}
+
             self.core_event_loop.stop()
 
             self.signalling_port.stop()
@@ -159,7 +164,20 @@ class ChannelsServer:
         Args:
             message (DataMessage): Message received requesting subscription to the channel.
         """
-        subscriber_name = message["subscriber_name"]
+        acknowledge = message.get("ack")
+        try:
+            subscriber_name = message["subscriber_name"]
+            if subscriber_name is None:
+                raise KeyError
+
+        except KeyError as exception:
+            if acknowledge:
+                subscription_error = message
+                subscription_error.command = DataMessageCommands.SUBSCRIPTION_ERROR
+                subscription_error.properties = {"exception": repr(exception)}
+                asyncio.create_task(subscription_error.send(self.data_port.get_socket()))
+            return
+
         try:
             _ = message.channel_name.decode("utf-8").index("!")
             is_process_channel = True
@@ -176,16 +194,60 @@ class ChannelsServer:
         try:
             channel_queue = self.message_store.get(channel_name)
             if channel_queue is None:
-                channel_queue = ChannelQueue(channel_name=channel_name)
+                channel_queue = ChannelQueue(channel_name=channel_name, max_length=None)
                 self.message_store[channel_name] = channel_queue
 
             channel_queue.subscribe(endpoint)
 
         except SubscriptionError as exception:
-            subscription_error = message
-            subscription_error.command = DataMessageCommands.SUBSCRIPTION_ERROR
-            subscription_error.properties = {"exception": repr(exception)}
-            asyncio.create_task(subscription_error.send(self.data_port.get_socket()))
+            if acknowledge:
+                subscription_error = message
+                subscription_error.command = DataMessageCommands.SUBSCRIPTION_ERROR
+                subscription_error.properties = {"exception": repr(exception)}
+                asyncio.create_task(subscription_error.send(self.data_port.get_socket()))
+
+        finally:
+            if acknowledge:
+                confirm_task = message
+                confirm_task.command = DataMessageCommands.COMPLETE
+                asyncio.create_task(confirm_task.send(self.data_port.get_socket()))
+
+    @DataCommands.register(command=DataMessageCommands.UNSUBSCRIBE)
+    def _unsubscribe(self, message: DataMessage) -> None:
+        """Command handler for USUBCHAN: Unsubscribe to a channel.
+
+        Removes an endpoint from a channel.
+
+        Args:
+            message (DataMessage): Message received requesting subscription to the channel.
+        """
+        subscriber_name = message["subscriber_name"]
+        acknowledge = message["ack"]
+
+        endpoint = Endpoint(
+            socket=self.data_port.get_socket(),
+            dealer=message.endpoints,
+            subscriber_name=subscriber_name,
+        )
+        channel_name = message.channel_name
+        try:
+            channel_queue = self.message_store.get(channel_name)
+            if channel_queue is None:
+                raise SubscriptionError("Cannot unsubscribe, channel does not exist.")
+            channel_queue.discard(endpoint)
+
+        except SubscriptionError as exception:
+            if acknowledge:
+                subscription_error = message
+                subscription_error.command = DataMessageCommands.SUBSCRIPTION_ERROR
+                subscription_error.properties = {"exception": repr(exception)}
+                asyncio.create_task(subscription_error.send(self.data_port.get_socket()))
+
+        finally:
+            if acknowledge:
+                confirm_task = message
+                confirm_task.command = DataMessageCommands.COMPLETE
+                asyncio.create_task(confirm_task.send(self.data_port.get_socket()))
 
     @DataCommands.register(command=DataMessageCommands.SEND_TO_CHANNEL)
     def _send_to_channel(self, message: DataMessage) -> None:
@@ -201,13 +263,14 @@ class ChannelsServer:
         channel_name = message.channel_name
         channel_queue = self.message_store.get(channel_name)
         if channel_queue is None:
-            channel_queue = ChannelQueue(channel_name=channel_name)
+            channel_queue = ChannelQueue(channel_name=channel_name, max_length=None)
             self.message_store[channel_name] = channel_queue
         try:
             time_to_live: float = int(message["ttl"])
         except (KeyError, ValueError):
             time_to_live: float = 60
         channel_queue.push(message, time_to_live=time_to_live)
+        # TODO: Need to check if ack is true, test for channel full.
 
     @DataCommands.register(command=DataMessageCommands.SEND_TO_GROUP)
     def _send_to_group(self, message: DataMessage) -> None:
@@ -332,6 +395,8 @@ class ChannelsServer:
         # TODO: Need to flush all client client caches as well - Track endpoints when
         # receiving signalling message. Then send to known endpoints. Purge endpoints
         # if not receiving a messages. within time-out period.
+        for channel_name, channel_queue in self.message_store.items():
+            channel_queue.stop()
         self.message_store: Dict[bytes, ChannelQueue] = {}
         self.group_store: Dict[bytes, Dict[bytes, datetime]] = {}
 

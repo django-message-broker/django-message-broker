@@ -1,14 +1,14 @@
 from asyncio.locks import Event
-from asyncio import create_task, sleep
+from asyncio import CancelledError, create_task, sleep
 from collections import UserDict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, FrozenSet, Iterator, List, Optional, Union
 import zmq
 from zmq.eventloop.zmqstream import ZMQStream
 from .utils import WeakPeriodicCallback
 
-from .exceptions import ChannelsSocketClosed, MessageFormatException, SubscriptionError
+from .exceptions import ChannelsSocketClosed, MessageFormatException, SubscriptionError, ChannelQueueFull
 from .data_message import DataMessage, DataMessageCommands
 from .utils import IntegerSequence
 
@@ -31,6 +31,10 @@ class Endpoint:
     is_process_channel: bool = False
     time_to_live: Optional[int] = 86400
     expiry: Optional[datetime] = None
+
+    @property
+    def id(self) -> FrozenSet:
+        return frozenset(self.dealer + [self.subscriber_name])
 
 
 class RoundRobinDict(UserDict):
@@ -94,11 +98,12 @@ class ChannelQueue:
         SubscriptionError: Attempt to add multiple endpoints or change the endpoint of a Process Channel
     """
 
-    def __init__(self, channel_name: bytes = b"") -> None:
+    def __init__(self, channel_name: bytes = b"", max_length: int = None) -> None:
         """Creates a new queue for the named channel.
 
         Args:
             channel_name (bytes, optional): Name of the channel. Defaults to b"".
+            max_length (Optional[int]) : Maximum length of the queue.
         """
         self.channel_name = channel_name
         # Test channel name to establish whether this is a process specific channel
@@ -108,6 +113,7 @@ class ChannelQueue:
         except ValueError:
             self.is_process_channel = False
 
+        self.max_length = max_length
         self.queue: Dict[int, DataMessage] = {}
         self.msq_sequence: Iterator = IntegerSequence().new_iterator()
         self.subscribers: RoundRobinDict = RoundRobinDict()
@@ -131,6 +137,7 @@ class ChannelQueue:
         """
         self.flush_message_callback.stop()
         self.flush_subscribers_callback.stop()
+        self.task.cancel()
 
     def _set_subscribers_available(self) -> None:
         """Set (or clear) asyncio event if there are subscribers to the queue."""
@@ -158,10 +165,13 @@ class ChannelQueue:
         """Queue event loop. Waits for subscribers, and if there are message in the queue
         pull them from the queue and send them to the subscriber.
         """
-        while True:
-            await self.subscribers_available.wait()
-            await self.messages_available.wait()
-            await self.pull_and_send()
+        try:
+            while True:
+                await self.subscribers_available.wait()
+                await self.messages_available.wait()
+                await self.pull_and_send()
+        except CancelledError:
+            pass
 
     def subscribe(self, endpoint: Endpoint) -> None:
         """Add subscribers to the channel. Subscribers are identified by the dealer that
@@ -178,7 +188,7 @@ class ChannelQueue:
         if endpoint.time_to_live:
             endpoint.expiry = datetime.now() + timedelta(seconds=endpoint.time_to_live)
 
-        dealer: bytes = endpoint.subscriber_name
+        dealer: FrozenSet = endpoint.id
         if len(self.subscribers) == 0:
             self.subscribers[dealer] = endpoint
             if endpoint.is_process_channel:
@@ -213,6 +223,9 @@ class ChannelQueue:
             message (DataMessage): Message to send to channel
             time_to_live (float): Number of seconds until message expires
         """
+        if self.max_length and len(self.queue) >= self.max_length:
+            raise ChannelQueueFull
+
         if time_to_live:
             message["expiry"] = datetime.now() + timedelta(seconds=time_to_live)
         self.queue[next(self.msq_sequence)] = message
@@ -237,7 +250,7 @@ class ChannelQueue:
                 try:
                     await message.send(endpoint.socket)
                 except ChannelsSocketClosed:
-                    # If we cannot send than put message back on the queue after 100 mSecond penalty.
+                    # If we cannot send then put message back on the queue after 100 mSecond penalty.
                     self.queue[sequence] = message
                     await sleep(0.1)
                 except MessageFormatException:
@@ -253,12 +266,12 @@ class ChannelQueue:
         Args:
             endpoint (Endpoint): id of the dealer to discard.
         """
-        dealer = frozenset(endpoint.dealer)
+        dealer = endpoint.id
         try:
             del self.subscribers[dealer]
             self._set_subscribers_available()
         except KeyError:
-            pass
+            raise SubscriptionError("Cannot unsubscribe, endpoint doesn't exist in the channel.")
 
     def _flush_messages(self) -> None:
         """Flush expired messsages from the queue."""
