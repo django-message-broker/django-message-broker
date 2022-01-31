@@ -8,6 +8,7 @@ from django_message_broker import ChannelsServerLayer
 
 
 @pytest.fixture()
+@pytest.mark.asyncio
 async def channel_layer():
     """
     Channel layer fixture that flushes automatically.
