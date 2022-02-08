@@ -1,47 +1,34 @@
 # Django Message Broker
 
-<img src="assets/django_message_broker_icon_512.svg"
-     alt="Django message broker icon"
-     width="120"
-     align="left"/>
-
-A message broker connects processes both on the same host or on different hosts
-to allow them to exchange information. Brokers can provide a wide range of services
-though typically they receive, store and forward messages between different systems.
-
-Django Message Broker is installed on the same host as Django web server and written
-in Python. It is targetted at low volume solutions where it is not effective or
-practical to deploy external servers such as Redis and RabbitMQ. Potential scenarios
-for Django Message Broker include:
-
-+ Prototyping, Testing, Training
-+ Data science projects where complexity exceeds the capabilities of Shiny, Dash, Streamlit
-+ Replacement for Microsoft Excel business forecasting models.
-+ Small business systems with a low number of users.
-
-The Django Message Broker does not replace the higher volume message brokers, and is
-intended to provide an easy to install, all-in-one alternative for small scale solutions.
-
-## Supported interfaces
-
 <img src="assets/DMB Ecosystem opt.svg"
      alt="Django message broker ecosystem"
-     width=320
+     width=200
      align="right"/>
 
-Provide a little more
+Django Message Broker is a plugin written in Python for Django that provides an all-in-one
+message broker. It interfaces with Django Channels and Celery [1], and replaces the need
+for separate message brokers such as Redis and RabbitMQ.
 
-text about the interfaces
+The motivating use case for Django Message Broker is small site solutions where it is
+easier to deploy a single server containing all the required functionality rather than a
+multi-server solution. An example would be a small site running data science models, where
+executing the model is a long running process and needs to execute in the background so
+that it doesn’t degrade the responsiveness of the user interface.
 
-why and how
+Potential scenarios for Django Message Broker include:
 
-what they do
++ Prototyping, Testing, Training
++ Data science projects where the model complexity exceeds the capabilities of packages such
+  as Shiny, Dash and Streamlit.
++ Small systems with a low number of users.
 
-etc.
+The Django Message Broker is an installable component of the Django platform that provides
+an easy to install, all-in-one alternative for small scale solutions. It does not replace
+the need for high volume message brokers where message volume and redundancy are important.
 
-+ Django channels - An alternative to in-memory and Redis backends.
-+ Celery - An alternative to RabbitMQ.
-+ Process Workers - Non celery background workers.
+**Note**
+
+1. The Celery interface is in development and not supported in this release. 
 
 ## Installation
 
