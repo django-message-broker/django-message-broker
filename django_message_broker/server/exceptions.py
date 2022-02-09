@@ -18,5 +18,9 @@ class ChannelsServerError(Exception):
     """General server exception."""
 
 
+class ChannelQueueFull(Exception):
+    """Channel queue is full."""
+
+
 class ChannelsSocketClosed(Exception):
     """Exception raised when message pushed to closed socket."""

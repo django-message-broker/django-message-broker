@@ -21,9 +21,9 @@ class DataMessageCommands:
     **Client to server**:
 
     + SUBSCRIBE (b"SUBCHANX") - Subscribe to a channel.
+    + UNSUBSCRIBE (b"USUBCHAN") - Unsubscribe from a channel.
     + SEND_TO_CHANNEL (b"SENDCHAN") - Send this message to a channel.
     + SEND_TO_GROUP (b"SENDGRPX") - Send this message to a group.
-    + PULL (b"PULLXXXX") - Waits for data on channel in server, pulls first available message.
 
     **Server to client**:
 
@@ -38,9 +38,9 @@ class DataMessageCommands:
     """
 
     SUBSCRIBE = b"SUBCHANX"
+    UNSUBSCRIBE = b"USUBCHAN"
     SEND_TO_CHANNEL = b"SENDCHAN"
     SEND_TO_GROUP = b"SENDGRPX"
-    PULL = b"PULLXXXX"
     DELIVERY = b"DELIVERY"
     SUBSCRIPTION_ERROR = b"ESUBCHAN"
     COMPLETE = b"COMPLETE"

@@ -157,10 +157,39 @@ class ChannelsClient:
     def _get_subscriber_id(self) -> bytes:
         return f"sub_id_{uuid.uuid4().hex}".encode("utf-8")
 
-    # # TODO: Add pull a message from a channel (for cases where we do not want to store it locally)
-    # async def _pull(self, channel_name: bytes) -> None:
-    #     """Waits for messages on the channel then pulls the first available."""
-    #     pass
+    async def _subscribe(self, channel_name: bytes, subscriber_name: bytes) -> None:
+        """Subscribes to a channel to ensure that messages are delivered to the client.
+
+        Args:
+            channel_name (bytes): Name of channel subscribed to.
+        """
+        if self.message_store.get(subscriber_name) is None:
+            self.message_store[subscriber_name] = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
+
+        subscribe_message = DataMessage(
+            command=DataMessageCommands.SUBSCRIBE,
+            channel_name=channel_name,
+            properties={"subscriber_name": subscriber_name},
+        )
+        await subscribe_message.send(self.data_manager.get_socket())
+
+    async def _unsubscribe(self, channel_name: bytes, subscriber_name: bytes) -> None:
+        """Unsubscribes from a channel this drops all local messages and removes the
+        subscription from the server. This may result in messages being lost.
+
+        Args:
+            channel_name (bytes): Name of channel subscribed to.
+        """
+        if self.message_store.get(subscriber_name):
+            # TODO Delete local client queue.
+            self.message_store[subscriber_name] = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
+
+        subscribe_message = DataMessage(
+            command=DataMessageCommands.SUBSCRIBE,
+            channel_name=channel_name,
+            properties={"subscriber_name": subscriber_name},
+        )
+        await subscribe_message.send(self.data_manager.get_socket())
 
     async def _receive(self, subscriber_name: bytes) -> Dict:
         """Receive the first message that arrives on the channel.
@@ -180,23 +209,6 @@ class ChannelsClient:
             message = await self.message_store[subscriber_name].pull()
 
         return message.get_body()
-
-    # TODO: Add unsubscribe
-    async def _subscribe(self, channel_name: bytes, subscriber_name: bytes) -> None:
-        """Subscribes to a channel to ensure that messages are delivered to the client.
-
-        Args:
-            channel_name (bytes): Name of channel subscribed to.
-        """
-        if self.message_store.get(subscriber_name) is None:
-            self.message_store[subscriber_name] = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
-
-        subscribe_message = DataMessage(
-            command=DataMessageCommands.SUBSCRIBE,
-            channel_name=channel_name,
-            properties={"subscriber_name": subscriber_name},
-        )
-        await subscribe_message.send(self.data_manager.get_socket())
 
     async def _send(
         self, channel_name: bytes, message: Dict, time_to_live: float = 60, acknowledge=False
@@ -220,7 +232,6 @@ class ChannelsClient:
         )
         await data_message.send(self.data_manager.get_socket())
         if acknowledge:
-            # TODO: Provide acknowledgement from server
             # TODO: Add test cases
             await self._await_data_response(data_message.id)
 
@@ -254,7 +265,11 @@ class ChannelsClient:
         # Add channel to group
         add_group_message = SignallingMessage(
             command=SignallingMessageCommands.GROUP_ADD,
-            properties={"group_name": group_name, "channel_name": channel_name},
+            properties={
+                "group_name": group_name,
+                "channel_name": channel_name,
+                "ack": True
+            },
         )
         await add_group_message.send(self.signalling_manager.get_socket())
         await self._await_signalling_response(add_group_message.id)
@@ -268,7 +283,11 @@ class ChannelsClient:
         """
         discard_group_message = SignallingMessage(
             command=SignallingMessageCommands.GROUP_DISCARD,
-            properties={"group_name": group_name, "channel_name": channel_name},
+            properties={
+                "group_name": group_name,
+                "channel_name": channel_name,
+                "ack": True
+            },
         )
         await discard_group_message.send(self.signalling_manager.get_socket())
         await self._await_signalling_response(discard_group_message.id)
@@ -315,21 +334,6 @@ class ChannelsClient:
             self.message_store[subscriber_name] = channel_queue
         channel_queue.push(message)
 
-    @DataCommands.register(command=DataMessageCommands.SUBSCRIPTION_ERROR)
-    def _subscription_error(self, message: DataMessage) -> None:
-        """Attempt to subscribe to a channel failed.
-
-        Args:
-            message (DataMessage): Data message.
-        """
-        event = self.data_response_event.get(message.id, None)
-        if event:
-            event.set()
-
-        exception_message = message.properties.get("exception")
-
-        raise ChannelsServerError(exception_message)
-
     @DataCommands.register(command=DataMessageCommands.COMPLETE)
     def _data_task_complete(self, message: DataMessage) -> None:
         """Response from server indicating that the data command completed successfully.
@@ -345,7 +349,7 @@ class ChannelsClient:
             event.set()
 
     @DataCommands.register(command=DataMessageCommands.EXCEPTION)
-    def _data_exception(self, message: DataMessage) -> None:
+    def _data_task_exception(self, message: DataMessage) -> None:
         """Response from server indicating that the data command generated a caught exception.
 
         Args:
@@ -401,7 +405,7 @@ class ChannelsClient:
             event.set()
 
     @SignallingCommands.register(command=SignallingMessageCommands.EXCEPTION)
-    def _signalling_exception(self, message: SignallingMessage) -> None:
+    def _signalling_task_exception(self, message: SignallingMessage) -> None:
         """Response from server indicating that the signalling command generated a caught exception.
 
         Args:
