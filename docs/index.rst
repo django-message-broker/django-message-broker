@@ -5,6 +5,7 @@
 Django Message Broker
 =====================
 
+.. image:: ./assets/interrogate_badge.svg
 
 Introduction
 ============

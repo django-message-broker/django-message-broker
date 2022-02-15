@@ -1,0 +1,207 @@
+= Coverage for /home/diaazul/workspace/python/django-message-broker/django_message_broker/ =
+------------------------------ Detailed Coverage -------------------------------
+| Name                                                        |         Status |
+|-------------------------------------------------------------|----------------|
+| __init__.py (module)                                        |         MISSED |
+|-------------------------------------------------------------|----------------|
+| apps.py (module)                                            |         MISSED |
+|   run_message_broker_server (L10)                           |         MISSED |
+|   BackgroundTask (L15)                                      |         MISSED |
+|     BackgroundTask.ready (L19)                              |         MISSED |
+|-------------------------------------------------------------|----------------|
+| base_channel_layer.py (module)                              |         MISSED |
+|   BaseChannelLayer (L6)                                     |        COVERED |
+|     BaseChannelLayer.compile_capacities (L17)               |        COVERED |
+|     BaseChannelLayer.get_capacity (L32)                     |        COVERED |
+|     BaseChannelLayer.match_type_and_length (L44)            |         MISSED |
+|     BaseChannelLayer.valid_channel_name (L58)               |         MISSED |
+|     BaseChannelLayer.valid_group_name (L72)                 |         MISSED |
+|     BaseChannelLayer.valid_channel_names (L81)              |         MISSED |
+|     BaseChannelLayer.non_local_name (L91)                   |        COVERED |
+|-------------------------------------------------------------|----------------|
+| config.py (module)                                          |         MISSED |
+|-------------------------------------------------------------|----------------|
+| layer.py (module)                                           |         MISSED |
+|   ChannelsServerLayer (L8)                                  |        COVERED |
+|     ChannelsServerLayer.channels (L35)                      |        COVERED |
+|     ChannelsServerLayer._coerce_bytes (L43)                 |        COVERED |
+|     ChannelsServerLayer.new_channel (L58)                   |        COVERED |
+|     ChannelsServerLayer.send (L74)                          |        COVERED |
+|     ChannelsServerLayer.receive (L93)                       |        COVERED |
+|     ChannelsServerLayer.flush (L113)                        |        COVERED |
+|     ChannelsServerLayer.close (L119)                        |        COVERED |
+|     ChannelsServerLayer._remove_from_groups (L128)          |        COVERED |
+|     ChannelsServerLayer.group_add (L138)                    |        COVERED |
+|     ChannelsServerLayer.group_discard (L155)                |        COVERED |
+|     ChannelsServerLayer.group_send (L170)                   |        COVERED |
+|-------------------------------------------------------------|----------------|
+| process_client.py (module)                                  |         MISSED |
+|   ProcessClient (L7)                                        |        COVERED |
+|     ProcessClient._coerce_bytes (L17)                       |        COVERED |
+|     ProcessClient.new_channel (L28)                         |        COVERED |
+|     ProcessClient.send (L44)                                |        COVERED |
+|     ProcessClient.receive (L55)                             |        COVERED |
+|     ProcessClient.group_add (L73)                           |        COVERED |
+|     ProcessClient.group_discard (L86)                       |        COVERED |
+|     ProcessClient.group_send (L97)                          |        COVERED |
+|-------------------------------------------------------------|----------------|
+| server/__init__.py (module)                                 |         MISSED |
+|-------------------------------------------------------------|----------------|
+| server/channels_client.py (module)                          |         MISSED |
+|   ChannelsClient (L20)                                      |        COVERED |
+|     ChannelsClient.stop (L112)                              |         MISSED |
+|     ChannelsClient._flush_queues (L117)                     |        COVERED |
+|     ChannelsClient._await_data_response (L124)              |        COVERED |
+|     ChannelsClient._await_signalling_response (L134)        |        COVERED |
+|     ChannelsClient.get_routing_id (L144)                    |        COVERED |
+|     ChannelsClient.get_subscriber_id (L156)                 |        COVERED |
+|     ChannelsClient._subscribe (L169)                        |        COVERED |
+|     ChannelsClient._unsubscribe (L185)                      |        COVERED |
+|     ChannelsClient._receive (L203)                          |        COVERED |
+|     ChannelsClient._send (L222)                             |        COVERED |
+|     ChannelsClient._send_to_group (L247)                    |        COVERED |
+|     ChannelsClient._group_add (L265)                        |        COVERED |
+|     ChannelsClient._group_discard (L286)                    |        COVERED |
+|     ChannelsClient._receive_data (L304)                     |        COVERED |
+|     ChannelsClient._delivery (L332)                         |        COVERED |
+|     ChannelsClient._data_task_complete (L347)               |        COVERED |
+|     ChannelsClient._data_task_exception (L361)              |        COVERED |
+|     ChannelsClient._receive_signalling (L373)               |        COVERED |
+|     ChannelsClient._signalling_task_complete (L403)         |        COVERED |
+|     ChannelsClient._signalling_task_exception (L417)        |        COVERED |
+|     ChannelsClient._flush_messages (L430)                   |        COVERED |
+|     ChannelsClient._flush_all (L443)                        |        COVERED |
+|-------------------------------------------------------------|----------------|
+| server/channels_server.py (module)                          |         MISSED |
+|   ChannelsServer (L20)                                      |        COVERED |
+|     ChannelsServer.start (L91)                              |        COVERED |
+|     ChannelsServer.stop (L110)                              |        COVERED |
+|     ChannelsServer._receive_data (L130)                     |        COVERED |
+|     ChannelsServer._subscribe (L181)                        |        COVERED |
+|     ChannelsServer._unsubscribe (L220)                      |        COVERED |
+|     ChannelsServer._send_to_channel (L247)                  |        COVERED |
+|     ChannelsServer._send_to_group (L269)                    |        COVERED |
+|     ChannelsServer._receive_signalling (L287)               |        COVERED |
+|     ChannelsServer._group_add (L343)                        |        COVERED |
+|     ChannelsServer._group_discard (L373)                    |        COVERED |
+|     ChannelsServer._flush_all (L399)                        |        COVERED |
+|     ChannelsServer._print (L416)                            |        COVERED |
+|     ChannelsServer._flush_queues (L432)                     |        COVERED |
+|     ChannelsServer._flush_groups (L439)                     |        COVERED |
+|-------------------------------------------------------------|----------------|
+| server/client_queue.py (module)                             |         MISSED |
+|   ClientQueue (L14)                                         |        COVERED |
+|     ClientQueue.stop (L42)                                  |        COVERED |
+|     ClientQueue._set_messages_available (L50)               |        COVERED |
+|     ClientQueue.push (L58)                                  |        COVERED |
+|     ClientQueue.pull (L79)                                  |        COVERED |
+|     ClientQueue.is_empty (L104)                             |        COVERED |
+|     ClientQueue.clients_waiting (L113)                      |        COVERED |
+|     ClientQueue.can_be_flushed (L124)                       |        COVERED |
+|     ClientQueue._flush_messages (L135)                      |        COVERED |
+|-------------------------------------------------------------|----------------|
+| server/data_message.py (module)                             |         MISSED |
+|   DataMessageCommands (L18)                                 |        COVERED |
+|   DataMessage (L52)                                         |        COVERED |
+|     DataMessage.__getitem__ (L77)                           |        COVERED |
+|     DataMessage.__setitem__ (L103)                          |        COVERED |
+|     DataMessage.get_body (L112)                             |        COVERED |
+|     DataMessage.__repr__ (L129)                             |         MISSED |
+|     DataMessage.quick_copy (L152)                           |        COVERED |
+|     DataMessage.copy (L172)                                 |        COVERED |
+|     DataMessage.send (L190)                                 |        COVERED |
+|     DataMessage.recv (L229)                                 |        COVERED |
+|     DataMessage.from_msg (L234)                             |        COVERED |
+|-------------------------------------------------------------|----------------|
+| server/exceptions.py (module)                               |         MISSED |
+|   MessageFormatException (L1)                               |        COVERED |
+|   MessageCommandUnknown (L5)                                |        COVERED |
+|   MessageTooLarge (L9)                                      |        COVERED |
+|   SubscriptionError (L13)                                   |        COVERED |
+|   ChannelsServerError (L17)                                 |        COVERED |
+|   ChannelQueueFull (L21)                                    |        COVERED |
+|   ChannelFlushed (L25)                                      |        COVERED |
+|   ChannelsSocketClosed (L29)                                |        COVERED |
+|-------------------------------------------------------------|----------------|
+| server/server_queue.py (module)                             |         MISSED |
+|   Endpoint (L17)                                            |        COVERED |
+|     Endpoint.id (L36)                                       |         MISSED |
+|   RoundRobinDict (L40)                                      |        COVERED |
+|     RoundRobinDict.__next__ (L54)                           |        COVERED |
+|     RoundRobinDict.first_key (L68)                          |        COVERED |
+|   ChannelQueue (L80)                                        |        COVERED |
+|     ChannelQueue.stop (L134)                                |        COVERED |
+|     ChannelQueue._set_subscribers_available (L142)          |        COVERED |
+|     ChannelQueue._set_messages_available (L149)             |        COVERED |
+|     ChannelQueue.is_empty (L156)                            |        COVERED |
+|     ChannelQueue.event_loop (L164)                          |        COVERED |
+|     ChannelQueue.subscribe (L175)                           |        COVERED |
+|     ChannelQueue.push (L218)                                |        COVERED |
+|     ChannelQueue.pull_and_send (L233)                       |        COVERED |
+|     ChannelQueue.discard (L262)                             |        COVERED |
+|     ChannelQueue._flush_messages (L275)                     |        COVERED |
+|     ChannelQueue._flush_subscribers (L286)                  |        COVERED |
+|-------------------------------------------------------------|----------------|
+| server/signalling_message.py (module)                       |         MISSED |
+|   SignallingMessageCommands (L15)                           |        COVERED |
+|   SignallingMessage (L52)                                   |        COVERED |
+|     SignallingMessage.__getitem__ (L70)                     |        COVERED |
+|     SignallingMessage.__setitem__ (L96)                     |        COVERED |
+|     SignallingMessage.__repr__ (L105)                       |         MISSED |
+|     SignallingMessage.send (L111)                           |        COVERED |
+|     SignallingMessage.recv (L142)                           |        COVERED |
+|     SignallingMessage.from_msg (L147)                       |        COVERED |
+|-------------------------------------------------------------|----------------|
+| server/socket_manager.py (module)                           |         MISSED |
+|   SocketManager (L12)                                       |        COVERED |
+|     SocketManager.get_socket (L66)                          |        COVERED |
+|     SocketManager.get_stream (L79)                          |        COVERED |
+|     SocketManager.get_routing_id (L92)                      |        COVERED |
+|     SocketManager.start (L103)                              |        COVERED |
+|     SocketManager.stop (L125)                               |        COVERED |
+|     SocketManager.set_receive_callback (L137)               |        COVERED |
+|     SocketManager.clear_receive_callback (L169)             |        COVERED |
+|-------------------------------------------------------------|----------------|
+| server/utils.py (module)                                    |         MISSED |
+|   IntegerSequence (L10)                                     |        COVERED |
+|     IntegerSequence.new_iterator (L12)                      |        COVERED |
+|   WeakPeriodicCallback (L27)                                |        COVERED |
+|     WeakPeriodicCallback._run (L48)                         |         MISSED |
+|   MethodProxy (L66)                                         |        COVERED |
+|     MethodProxy.register (L72)                              |        COVERED |
+|       MethodProxy.register.proxy_callable (L90)             |         MISSED |
+|     MethodProxy.unregister (L104)                           |        COVERED |
+|   WaitFor (L117)                                            |        COVERED |
+|     WaitFor._callback (L142)                                |        COVERED |
+|     WaitFor.all_events (L157)                               |        COVERED |
+|     WaitFor.one_event (L162)                                |        COVERED |
+|     WaitFor.__del__ (L167)                                  |        COVERED |
+|   MethodRegistry (L173)                                     |        COVERED |
+|     MethodRegistry.register (L218)                          |        COVERED |
+|       MethodRegistry.register.decorator (L234)              |         MISSED |
+|     MethodRegistry.get_bound_callables (L243)               |        COVERED |
+|-------------------------------------------------------------|----------------|
+
+----------------------------------- Summary ------------------------------------
+| Name                             |    Total |    Miss |    Cover |    Cover% |
+|----------------------------------|----------|---------|----------|-----------|
+| __init__.py                      |        1 |       1 |        0 |        0% |
+| apps.py                          |        4 |       4 |        0 |        0% |
+| base_channel_layer.py            |        9 |       5 |        4 |       44% |
+| config.py                        |        1 |       1 |        0 |        0% |
+| layer.py                         |       13 |       1 |       12 |       92% |
+| process_client.py                |        9 |       1 |        8 |       89% |
+| server/__init__.py               |        1 |       1 |        0 |        0% |
+| server/channels_client.py        |       24 |       2 |       22 |       92% |
+| server/channels_server.py        |       16 |       1 |       15 |       94% |
+| server/client_queue.py           |       10 |       1 |        9 |       90% |
+| server/data_message.py           |       12 |       2 |       10 |       83% |
+| server/exceptions.py             |        9 |       1 |        8 |       89% |
+| server/server_queue.py           |       18 |       2 |       16 |       89% |
+| server/signalling_message.py     |        9 |       2 |        7 |       78% |
+| server/socket_manager.py         |        9 |       1 |        8 |       89% |
+| server/utils.py                  |       18 |       4 |       14 |       78% |
+|----------------------------------|----------|---------|----------|-----------|
+| TOTAL                            |      163 |      30 |      133 |     81.6% |
+---------------- RESULT: FAILED (minimum: 95.0%, actual: 81.6%) ----------------
+Generated badge to /home/diaazul/workspace/python/django-message-broker/docs/assets/interrogate_badge.svg

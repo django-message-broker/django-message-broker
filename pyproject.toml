@@ -44,6 +44,7 @@ channels = "^3.0.4"
 async-timeout = "^4.0.2"
 pytest-django = "^4.5.2"
 pytest-asyncio = "^0.16.0"
+interrogate = "^1.5.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -58,3 +59,26 @@ line-length = 88
 [tool.isort]
 profile = "hug"
 src_paths = ["isort", "test"]
+
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = false
+ignore-magic = false
+ignore-semiprivate = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-module = false
+ignore-nested-functions = false
+ignore-nested-classes = true
+ignore-setters = false
+fail-under = 95
+exclude = ["setup.py", "docs", "build"]
+ignore-regex = ["^get$", "^mock_.*", ".*BaseClass.*"]
+# possible values: 0 (minimal output), 1 (-v), 2 (-vv)
+verbose = 2
+quiet = false
+whitelist-regex = []
+color = true
+omit-covered-files = false
+generate-badge = "./docs/assets"
+badge-format = "svg"
