@@ -3,7 +3,11 @@ name = "django-message-broker"
 version = "0.2.0"
 description = "All-in-one message broker for Django supporting Channels, Celery and process workers"
 authors = ["Tanzo Creative Ltd"]
-license = "Apache Software License"
+license = "Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/django-message-broker/django-message-broker"
+repository = "https://github.com/django-message-broker/django-message-broker"
+documentation = ""
 keywords = [
     "django",
     "message-broker",
