@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-message-broker"
-version = "0.2.0"
+version = "0.2.1"
 description = "All-in-one message broker for Django supporting Channels, Celery and process workers"
 authors = ["Tanzo Creative Ltd"]
 license = "Apache-2.0"
