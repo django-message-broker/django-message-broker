@@ -1,3 +1,7 @@
+"""
+Wrapper around Zero Message Queue to manage sockets.
+"""
+
 from asyncio import Future
 import ipaddress
 from typing import Any, Callable, List, Optional, Union

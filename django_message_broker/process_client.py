@@ -1,3 +1,6 @@
+"""
+Implements a client for the Django Message Broker within a process
+"""
 from typing import Dict, Union
 from .server.channels_client import ChannelsClient
 import random

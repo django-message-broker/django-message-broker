@@ -1,3 +1,6 @@
+"""
+Implements a message queue, used within the client for the Django Message Broker.
+"""
 import asyncio
 from asyncio.locks import Event
 from datetime import datetime, timedelta
@@ -19,7 +22,9 @@ class ClientQueue:
     message is available.
     """
 
-    def __init__(self, channel_name: bytes = b"", time_to_live: Optional[float] = None) -> None:
+    def __init__(
+        self, channel_name: bytes = b"", time_to_live: Optional[float] = None
+    ) -> None:
         """Creates a message queue for a given channel name.
 
         Args:
@@ -130,7 +135,11 @@ class ClientQueue:
         Returns:
             bool: True if the channel can be flushed.
         """
-        return self.is_empty and not self.clients_waiting and (datetime.now() > self.expiry)
+        return (
+            self.is_empty
+            and not self.clients_waiting
+            and (datetime.now() > self.expiry)
+        )
 
     def _flush_messages(self) -> None:
         """Remove expired messages from the queue.

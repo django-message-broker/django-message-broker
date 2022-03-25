@@ -1,3 +1,6 @@
+"""
+Implements a channel client for the Django Message Broker.
+"""
 from asyncio.futures import Future
 from asyncio.locks import Event
 from datetime import datetime
@@ -30,18 +33,25 @@ class ChannelsClient:
 
     + Signalling port (base port + 1, default=5557): Transmission of signalling messages between the client and server.
     """
+
     class DataCommands(MethodRegistry):
         """Create registry of data commands using decorator."""
+
         # We need to create the registry in the subclass when there is more than one registry.
         callables: Dict[bytes, Callable] = {}
 
     class SignallingCommands(MethodRegistry):
         """Create registry of signalling commands using decorator."""
+
         # We need to create the registry in the subclass when there is more than one registry.
         callables: Dict[bytes, Callable] = {}
 
     def __init__(
-        self, *args, ip_address: str = "127.0.0.1", port: int = 5556, **kwargs,
+        self,
+        *args,
+        ip_address: str = "127.0.0.1",
+        port: int = 5556,
+        **kwargs,
     ):
         """Client to the message server for Django Channels.
 
@@ -60,7 +70,9 @@ class ChannelsClient:
 
         # Create jump dictionaries to index callable methods on message commands.
         self.data_callables = ChannelsClient.DataCommands.get_bound_callables(self)
-        self.signalling_callables = ChannelsClient.SignallingCommands.get_bound_callables(self)
+        self.signalling_callables = (
+            ChannelsClient.SignallingCommands.get_bound_callables(self)
+        )
 
         self.ip_address = ip_address
         self.port = port
@@ -110,6 +122,7 @@ class ChannelsClient:
         self.flush_queues_callback.start()
 
     def stop(self):
+        """Stops the server and flushes all queues."""
         self.data_manager.stop()
         self.signalling_manager.stop()
         self.flush_queues_callback.stop()
@@ -149,7 +162,7 @@ class ChannelsClient:
         Returns:
             str: Routing id
         """
-        routing_id = self.data_manager.get_routing_id() or b'\x00'
+        routing_id = self.data_manager.get_routing_id() or b"\x00"
         channels_id = f"zmq_id_{routing_id.hex()}"
         return channels_id
 
@@ -162,7 +175,7 @@ class ChannelsClient:
         Returns:
             bytes: Unique subscriber reference.
         """
-        routing_id = self.data_manager.get_routing_id() or b'\x00'
+        routing_id = self.data_manager.get_routing_id() or b"\x00"
         subscriber_id = f"sub_id_{routing_id.hex()}_{uuid.uuid4().hex}".encode("utf-8")
         return subscriber_id
 
@@ -173,7 +186,9 @@ class ChannelsClient:
             channel_name (bytes): Name of channel subscribed to.
         """
         if self.message_store.get(subscriber_name) is None:
-            self.message_store[subscriber_name] = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
+            self.message_store[subscriber_name] = ClientQueue(
+                channel_name=subscriber_name, time_to_live=self.channel_time_to_live
+            )
 
         subscribe_message = DataMessage(
             command=DataMessageCommands.SUBSCRIBE,
@@ -191,7 +206,9 @@ class ChannelsClient:
         """
         if self.message_store.get(subscriber_name):
             # TODO Delete local client queue.
-            self.message_store[subscriber_name] = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
+            self.message_store[subscriber_name] = ClientQueue(
+                channel_name=subscriber_name, time_to_live=self.channel_time_to_live
+            )
 
         subscribe_message = DataMessage(
             command=DataMessageCommands.SUBSCRIBE,
@@ -212,7 +229,9 @@ class ChannelsClient:
             Dict: Received message.
         """
         if self.message_store.get(subscriber_name) is None:
-            self.message_store[subscriber_name] = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
+            self.message_store[subscriber_name] = ClientQueue(
+                channel_name=subscriber_name, time_to_live=self.channel_time_to_live
+            )
         message = None
         while message is None:
             message = await self.message_store[subscriber_name].pull()
@@ -220,7 +239,11 @@ class ChannelsClient:
         return message.get_body()
 
     async def _send(
-        self, channel_name: bytes, message: Dict, time_to_live: float = 60, acknowledge=False
+        self,
+        channel_name: bytes,
+        message: Dict,
+        time_to_live: float = 60,
+        acknowledge=False,
     ) -> None:
         """Sends a message to a channel.
 
@@ -233,10 +256,7 @@ class ChannelsClient:
         data_message = DataMessage(
             channel_name=channel_name,
             command=DataMessageCommands.SEND_TO_CHANNEL,
-            properties={
-                "ttl": time_to_live,
-                "ack": acknowledge
-            },
+            properties={"ttl": time_to_live, "ack": acknowledge},
             body=message,
         )
         await data_message.send(self.data_manager.get_socket())
@@ -277,7 +297,7 @@ class ChannelsClient:
             properties={
                 "group_name": group_name,
                 "channel_name": channel_name,
-                "ack": True
+                "ack": True,
             },
         )
         await add_group_message.send(self.signalling_manager.get_socket())
@@ -295,7 +315,7 @@ class ChannelsClient:
             properties={
                 "group_name": group_name,
                 "channel_name": channel_name,
-                "ack": True
+                "ack": True,
             },
         )
         await discard_group_message.send(self.signalling_manager.get_socket())
@@ -339,7 +359,9 @@ class ChannelsClient:
         subscriber_name = message.channel_name
         channel_queue = self.message_store.get(subscriber_name)
         if channel_queue is None:
-            channel_queue = ClientQueue(channel_name=subscriber_name, time_to_live=self.channel_time_to_live)
+            channel_queue = ClientQueue(
+                channel_name=subscriber_name, time_to_live=self.channel_time_to_live
+            )
             self.message_store[subscriber_name] = channel_queue
         channel_queue.push(message)
 

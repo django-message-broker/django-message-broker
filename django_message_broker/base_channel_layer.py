@@ -1,4 +1,6 @@
-# Copied from Django Channels memory layer.
+"""
+Copied from Django Channels memory layer.
+"""
 import fnmatch
 import re
 
@@ -42,6 +44,14 @@ class BaseChannelLayer:
         return self.capacity
 
     def match_type_and_length(self, name):
+        """Confirm object is a string and less than 100 characters.
+
+        Args:
+            name (Any): Object to test.
+
+        Returns:
+            bool : True if string less than 100 characters, else False.
+        """
         if isinstance(name, str) and (len(name) < 100):
             return True
         return False
@@ -56,6 +66,20 @@ class BaseChannelLayer:
     )
 
     def valid_channel_name(self, name, receive=False):
+        """Tests whether a channel name is valid. A channel name can only contain ASCII
+        alphanumeric, hyphen and periods.
+
+        Args:
+            name (str): Channel name to test
+            receive (bool, optional): True if receive channel. Defaults to False.
+
+        Raises:
+            TypeError: If receiving channel is local it must end at the `!` character.
+            TypeError: Channel name contains invalid characters.
+
+        Returns:
+            _type_: _True if channel name is valid.
+        """
         if self.match_type_and_length(name):
             if bool(self.channel_name_regex.match(name)):
                 # Check cases for special channels
@@ -70,6 +94,18 @@ class BaseChannelLayer:
         )
 
     def valid_group_name(self, name):
+        """Tests whether a group name is valid. A group name can only contain ASCII
+        alphanumeric, hyphen and periods.
+
+        Args:
+            name (str): group name to test.
+
+        Raises:
+            TypeError: Group name contains invalid characters.
+
+        Returns:
+            _type_: True if group name is valid.
+        """
         if self.match_type_and_length(name):
             if bool(self.group_name_regex.match(name)):
                 return True
@@ -79,6 +115,15 @@ class BaseChannelLayer:
         )
 
     def valid_channel_names(self, names, receive=False):
+        """Tests whether a list of channel names is valid.
+
+        Args:
+            names List[str]: List of channel names to check
+            receive (bool, optional): Channel names are receive channels. Defaults to False.
+
+        Returns:
+            bool : True if all valid.
+        """
         _non_empty_list = True if names else False
         _names_type = isinstance(names, list)
         assert _non_empty_list and _names_type, "names must be a non-empty list"

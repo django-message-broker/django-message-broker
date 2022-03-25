@@ -1,3 +1,7 @@
+"""
+Implements a data message as a structured dataclass. Used to pass data
+messages between the Django Message Broker clients and server.
+"""
 from __future__ import annotations
 from asyncio.futures import Future
 
@@ -127,6 +131,21 @@ class DataMessage:
         return self.body
 
     def __repr__(self) -> str:
+        """Returns a printable string of data message contents.
+
+        Returns:
+
+        *   Endpoint list
+        *   Channel name
+        *   Unique message id
+        *   Command
+        *   Size of data body
+        *   Properties
+        *   Data body
+
+        Returns:
+            str: Data message contents.
+        """
         if self.body is None and self.encoded_body:
             self.body = decode(self.encoded_body)
         if self.body is None:

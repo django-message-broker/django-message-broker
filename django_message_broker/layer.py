@@ -1,3 +1,7 @@
+"""
+Channels installable channel backend using Django Message Broker
+"""
+
 from typing import Any, Dict, List, Union
 import uuid
 
@@ -7,7 +11,7 @@ from .base_channel_layer import BaseChannelLayer
 
 class ChannelsServerLayer(ChannelsClient, BaseChannelLayer):
     """
-    Django Channels server layer.
+    Django Message Broker channel layer backend.
     """
 
     def __init__(

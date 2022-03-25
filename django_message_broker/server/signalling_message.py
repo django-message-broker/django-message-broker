@@ -1,3 +1,8 @@
+"""
+Implements a signalling message as a structured dataclass. Used to pass signaling
+message between the Django Message Broker clients and server.
+"""
+
 from __future__ import annotations
 from asyncio.futures import Future
 
@@ -103,6 +108,18 @@ class SignallingMessage:
         self.properties[key] = value
 
     def __repr__(self) -> str:
+        """Returns a printable string of signalling message contents.
+
+        Returns:
+
+        *   Endpoint list
+        *   Unique message id
+        *   Command
+        *   Properties
+
+        Returns:
+            str: Signalling message contents.
+        """
         representation = "[endps:{ep}][seq:{id}][cmd:{command}][props:{props}]".format(
             ep=self.endpoints, id=self.id, command=self.command, props=self.properties
         )
@@ -171,4 +188,9 @@ class SignallingMessage:
             raise MessageFormatException("The signalling message must be three frames.")
         id, command, encoded_properties = message_frames
         properties = decode(encoded_properties)
-        return cls(endpoints=endpoints, id=id, command=command, properties=properties,)
+        return cls(
+            endpoints=endpoints,
+            id=id,
+            command=command,
+            properties=properties,
+        )

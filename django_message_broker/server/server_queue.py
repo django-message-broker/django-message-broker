@@ -1,3 +1,15 @@
+"""
+Implements a message queue within the Django Message Broker server.
+
+Includes:
+
+*   Endpoint - A class containing zero message queue routing back to the subscriber's client.
+*   RoundRobinDict - Implements a dictionary of messages over which the channel queue iterates,
+    returning to the first item in the list when the end is reached.
+*   ChannelQueue - Implements a channel queue within the server.
+
+"""
+
 from asyncio.locks import Event
 from asyncio import CancelledError, create_task, sleep, wait, ALL_COMPLETED
 from collections import UserDict
@@ -8,7 +20,12 @@ import zmq
 from zmq.eventloop.zmqstream import ZMQStream
 from .utils import WeakPeriodicCallback
 
-from .exceptions import ChannelsSocketClosed, MessageFormatException, SubscriptionError, ChannelQueueFull
+from .exceptions import (
+    ChannelsSocketClosed,
+    MessageFormatException,
+    SubscriptionError,
+    ChannelQueueFull,
+)
 from .data_message import DataMessage, DataMessageCommands
 from .utils import IntegerSequence
 
@@ -34,6 +51,11 @@ class Endpoint:
 
     @property
     def id(self) -> FrozenSet:
+        """Returns a unique endpoint id from the routing information and channel name.
+
+        Returns:
+            FrozenSet: Unique endpoint id.
+        """
         return frozenset(self.dealer + [self.subscriber_name])
 
 
@@ -98,7 +120,9 @@ class ChannelQueue:
         SubscriptionError: Attempt to add multiple endpoints or change the endpoint of a Process Channel
     """
 
-    def __init__(self, channel_name: bytes = b"", max_length: int = None) -> None:
+    def __init__(
+        self, channel_name: bytes = b"", max_length: Optional[int] = None
+    ) -> None:
         """Creates a new queue for the named channel.
 
         Args:
@@ -167,7 +191,10 @@ class ChannelQueue:
         """
         try:
             while True:
-                await wait([self.subscribers_available.wait(), self.messages_available.wait()], return_when=ALL_COMPLETED)
+                await wait(
+                    [self.subscribers_available.wait(), self.messages_available.wait()],
+                    return_when=ALL_COMPLETED,
+                )
                 await self.pull_and_send()
         except CancelledError:
             pass
@@ -270,7 +297,9 @@ class ChannelQueue:
             del self.subscribers[dealer]
             self._set_subscribers_available()
         except KeyError:
-            raise SubscriptionError("Cannot unsubscribe, endpoint doesn't exist in the channel.")
+            raise SubscriptionError(
+                "Cannot unsubscribe, endpoint doesn't exist in the channel."
+            )
 
     def _flush_messages(self) -> None:
         """Flush expired messsages from the queue."""

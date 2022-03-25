@@ -1,14 +1,25 @@
+"""
+Additional functionality used within the Django Message Broker:
+
+*   IntegerSequence - Iterator returning the next integer when accessed.
+*   WeakPeriodicCallback - Modifies Tornado Periodic Callback with weak method references.
+*   MethodProxy - Creates a register of weak references to methods.
+*   WaitFor - Asyncio method to wait upon multiple coroutines or events.
+*   MethodRegistry - Implements a decorator in a class to auto-create a registor of methods.
+"""
+
 import asyncio
 from inspect import isawaitable
 import types
 from tornado.ioloop import PeriodicCallback
 from tornado.log import app_log
-from typing import Awaitable, Callable, Dict, List, Optional, Iterator
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Iterator
 import weakref
 
 
 class IntegerSequence:
     """Generates iterators of integer sequences."""
+
     def new_iterator(self, start: int = 0) -> Iterator[int]:
         """Returns an iterator which generates the next integer in a sequence when called.
 
@@ -46,6 +57,7 @@ class WeakPeriodicCallback(PeriodicCallback):
         self.callback = weakref.WeakMethod(callback)
 
     async def _run(self) -> None:
+        """Method called after the time that future is scheduled to run."""
         if not self._running:
             return
         try:
@@ -87,7 +99,15 @@ class MethodProxy:
         callback_ref = hash(callback)
         weak_callback = weakref.WeakMethod(callback)
 
-        def proxy_callable(*args, **kwargs):
+        def proxy_callable(*args: List[Any], **kwargs: Dict[str, Any]) -> Any:
+            """Proxy method weak referencing an actual method.
+
+            Raises:
+                ReferenceError: Actual method no longer exists.
+
+            Returns:
+                Any : Returns value from the original method.
+            """
             callback = weak_callback()
             if callback is None:
                 raise ReferenceError
@@ -123,6 +143,7 @@ class WaitFor:
     * ``one_event()`` - Which is triggered when any one of the events is set.
     * ``all_events()`` - Which is triggered when all the events are set.
     """
+
     def __init__(self, events: List[asyncio.Event]) -> None:
         """Takes a list of asyncio events as arguments.
 
@@ -172,42 +193,41 @@ class WaitFor:
 
 class MethodRegistry:
     """
-Meta class plug-in adding a dictionary of callable methods indexed by command name.
+    Meta class plug-in adding a dictionary of callable methods indexed by command name.
 
-The class exposes a decorator that registers the method in a dictionary
-indexed by a named command (as byte string). The dictionary of callable methods is
-created when the class is imported; however, methods can only be bound to an instance
-of the class when the class is instantiated.
+    The class exposes a decorator that registers the method in a dictionary
+    indexed by a named command (as byte string). The dictionary of callable methods is
+    created when the class is imported; however, methods can only be bound to an instance
+    of the class when the class is instantiated.
 
-When an instance of the class is instantiated then a copy of the dictionary containing
-bound callable methods can be created by calling the `get_bound_callables` method passing
-the instance of the class as a parameter.
+    When an instance of the class is instantiated then a copy of the dictionary containing
+    bound callable methods can be created by calling the `get_bound_callables` method passing
+    the instance of the class as a parameter.
 
-Example usage:
+    Example usage:
 
-.. code-block:: python
+    .. code-block:: python
 
-    class MathsByName:
-        # Create a registry of math functions
-        class MathFunctions(MethodRegistry):
-            pass
+        class MathsByName:
+            # Create a registry of math functions
+            class MathFunctions(MethodRegistry):
+                pass
 
-        def __init__(self):
-            # Bind methods to instance
-            self.maths = MathsByName.MathFunctions.get_bound_callables(self)
+            def __init__(self):
+                # Bind methods to instance
+                self.maths = MathsByName.MathFunctions.get_bound_callables(self)
 
-        @MathFunctions.register(command=b"plusOne")
-        def f1(self, a):
-            return a + 1
+            @MathFunctions.register(command=b"plusOne")
+            def f1(self, a):
+                return a + 1
 
-        @MathFunctions.register(command=b"sumTwo")
-        def f2(self, a, b):
-            return a + b
+            @MathFunctions.register(command=b"sumTwo")
+            def f2(self, a, b):
+                return a + b
 
-    myMaths = MathsByName()
-    plus_one = myMaths.maths[b"plusOne"](1)  # result = 2
-    sum_two = myMaths.maths[b"sumTwo"](1, 2)  # result = 3
-"""
+        myMaths = MathsByName()
+        plus_one = myMaths.maths[b"plusOne"](1)  # result = 2
+        sum_two = myMaths.maths[b"sumTwo"](1, 2)  # result = 3"""
 
     # This creates a shared registry across all MethodRegistry subclasses within an enclosing class
     # If more than one registry is required in a class then callables needs to be defined in the scope
@@ -215,7 +235,7 @@ Example usage:
     callables: Dict[bytes, Callable] = {}
 
     @classmethod
-    def register(cls, command: bytes = None) -> Callable:
+    def register(cls, command: Optional[bytes] = None) -> Callable:
         """Decorator to register a named function in the dictionary of callables.
 
         Args:
@@ -232,8 +252,14 @@ Example usage:
             raise Exception(f"Command '{command}' can only be bound to one function.")
 
         def decorator(func: Callable) -> Callable:
-            # We don't wrap the function, only register it with the command
-            # and return the original function.
+            """Decorator registering function in the register.
+
+            Args:
+                func (Callable): Callable function to register.
+
+            Returns:
+                Callable: Passes the original function to the interpreter.
+            """
             cls.callables[command] = func
             return func
 
@@ -248,6 +274,5 @@ Example usage:
         """
         return {
             command: types.MethodType(func, self)
-            for command, func
-            in cls.callables.items()
+            for command, func in cls.callables.items()
         }

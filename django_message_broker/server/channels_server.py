@@ -1,3 +1,6 @@
+"""
+Implements the Django Message Broker Server.
+"""
 import asyncio
 from asyncio.futures import Future
 from datetime import datetime, timedelta
@@ -32,11 +35,13 @@ class ChannelsServer:
 
     class DataCommands(MethodRegistry):
         """Create registry of data commands using decorators."""
+
         # We need to create the registry in the subclass when there is more than one registry.
         callables: Dict[bytes, Callable] = {}
 
     class SignallingCommands(MethodRegistry):
         """Create registry of signalling commands using decorators."""
+
         # We need to create the registry in the subclass when there is more than one registry.
         callables: Dict[bytes, Callable] = {}
 
@@ -56,7 +61,9 @@ class ChannelsServer:
 
         # Create jump dictionaries to index callable methods on message commands.
         self.data_callables = ChannelsServer.DataCommands.get_bound_callables(self)
-        self.signalling_callables = ChannelsServer.SignallingCommands.get_bound_callables(self)
+        self.signalling_callables = (
+            ChannelsServer.SignallingCommands.get_bound_callables(self)
+        )
 
         # Create zmq context, event loop and sockets
         # Note the server uses the zmq context
@@ -157,12 +164,12 @@ class ChannelsServer:
 
         except Exception as exception:
             response_message = DataMessage(
-                    endpoints=message.endpoints.copy(),
-                    id=message.id,
-                    channel_name=message.channel_name,
-                    command=DataMessageCommands.EXCEPTION,
-                    properties={"exception": repr(exception)}
-                )
+                endpoints=message.endpoints.copy(),
+                id=message.id,
+                channel_name=message.channel_name,
+                command=DataMessageCommands.EXCEPTION,
+                properties={"exception": repr(exception)},
+            )
 
         finally:
             if message.get("ack"):
@@ -170,11 +177,11 @@ class ChannelsServer:
                 # then send response indicating task complete.
                 if response_message is None:
                     response_message = DataMessage(
-                            endpoints=message.endpoints.copy(),
-                            id=message.id,
-                            channel_name=message.channel_name,
-                            command=DataMessageCommands.COMPLETE,
-                        )
+                        endpoints=message.endpoints.copy(),
+                        id=message.id,
+                        channel_name=message.channel_name,
+                        command=DataMessageCommands.COMPLETE,
+                    )
                 asyncio.create_task(response_message.send(self.data_port.get_socket()))
 
     @DataCommands.register(command=DataMessageCommands.SUBSCRIBE)
@@ -321,11 +328,11 @@ class ChannelsServer:
 
         except Exception as exception:
             response_message = DataMessage(
-                    endpoints=message.endpoints.copy(),
-                    id=message.id,
-                    command=DataMessageCommands.EXCEPTION,
-                    properties={"exception": repr(exception)}
-                )
+                endpoints=message.endpoints.copy(),
+                id=message.id,
+                command=DataMessageCommands.EXCEPTION,
+                properties={"exception": repr(exception)},
+            )
 
         finally:
             if message.get("ack"):
@@ -333,10 +340,10 @@ class ChannelsServer:
                 # then send response indicating task complete.
                 if response_message is None:
                     response_message = DataMessage(
-                            endpoints=message.endpoints.copy(),
-                            id=message.id,
-                            command=DataMessageCommands.COMPLETE,
-                        )
+                        endpoints=message.endpoints.copy(),
+                        id=message.id,
+                        command=DataMessageCommands.COMPLETE,
+                    )
                 asyncio.create_task(message.send(self.signalling_port.get_socket()))
 
     @SignallingCommands.register(command=SignallingMessageCommands.GROUP_ADD)

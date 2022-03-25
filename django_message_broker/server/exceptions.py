@@ -1,3 +1,8 @@
+"""
+Django Message Broker custom exceptions.
+"""
+
+
 class MessageFormatException(Exception):
     """The message format is incorrect."""
 
