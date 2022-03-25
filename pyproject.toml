@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "django-message-broker"
-version = "0.3.0"
+version = "0.2.0"
 description = "All-in-one message broker for Django supporting Channels, Celery and process workers"
 authors = ["Tanzo Creative Ltd"]
-license = "BSD 3-Clause"
+license = "Apache Software License"
 keywords = [
     "django",
     "message-broker",
@@ -14,12 +14,11 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Web Environment",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-    "Framework :: Django :: 3.2",
     "Framework :: Django :: 4.0",
     "Topic :: Software Development :: Libraries",
     "Typing :: Typed"
