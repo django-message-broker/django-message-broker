@@ -8,8 +8,8 @@ Django Message Broker
 .. image:: ./assets/interrogate_badge.svg
 
 .. image:: https://readthedocs.org/projects/django-message-broker/badge/?version=latest
-:target: https://django-message-broker.readthedocs.io/en/latest/?badge=latest
-:alt: Documentation Status
+    :target: https://django-message-broker.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 Introduction
 ============
