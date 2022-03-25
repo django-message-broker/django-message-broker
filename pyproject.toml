@@ -7,7 +7,7 @@ license = "Apache-2.0"
 readme = "README.md"
 homepage = "https://github.com/django-message-broker/django-message-broker"
 repository = "https://github.com/django-message-broker/django-message-broker"
-documentation = ""
+documentation = "https://django-message-broker.readthedocs.io/en/latest/index.html"
 keywords = [
     "django",
     "message-broker",
