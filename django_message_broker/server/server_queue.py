@@ -1,5 +1,5 @@
 from asyncio.locks import Event
-from asyncio import CancelledError, create_task, sleep
+from asyncio import CancelledError, create_task, sleep, wait, ALL_COMPLETED
 from collections import UserDict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -167,8 +167,7 @@ class ChannelQueue:
         """
         try:
             while True:
-                await self.subscribers_available.wait()
-                await self.messages_available.wait()
+                await wait([self.subscribers_available.wait(), self.messages_available.wait()], return_when=ALL_COMPLETED)
                 await self.pull_and_send()
         except CancelledError:
             pass

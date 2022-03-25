@@ -2,12 +2,12 @@
 ------------------------------ Detailed Coverage -------------------------------
 | Name                                                        |         Status |
 |-------------------------------------------------------------|----------------|
-| __init__.py (module)                                        |         MISSED |
+| __init__.py (module)                                        |        COVERED |
 |-------------------------------------------------------------|----------------|
-| apps.py (module)                                            |         MISSED |
-|   run_message_broker_server (L10)                           |         MISSED |
-|   BackgroundTask (L15)                                      |         MISSED |
-|     BackgroundTask.ready (L19)                              |         MISSED |
+| apps.py (module)                                            |        COVERED |
+|   run_message_broker_server (L11)                           |        COVERED |
+|   BackgroundTask (L18)                                      |        COVERED |
+|     BackgroundTask.ready (L24)                              |        COVERED |
 |-------------------------------------------------------------|----------------|
 | base_channel_layer.py (module)                              |         MISSED |
 |   BaseChannelLayer (L6)                                     |        COVERED |
@@ -19,7 +19,7 @@
 |     BaseChannelLayer.valid_channel_names (L81)              |         MISSED |
 |     BaseChannelLayer.non_local_name (L91)                   |        COVERED |
 |-------------------------------------------------------------|----------------|
-| config.py (module)                                          |         MISSED |
+| config.py (module)                                          |        COVERED |
 |-------------------------------------------------------------|----------------|
 | layer.py (module)                                           |         MISSED |
 |   ChannelsServerLayer (L8)                                  |        COVERED |
@@ -45,7 +45,7 @@
 |     ProcessClient.group_discard (L86)                       |        COVERED |
 |     ProcessClient.group_send (L97)                          |        COVERED |
 |-------------------------------------------------------------|----------------|
-| server/__init__.py (module)                                 |         MISSED |
+| server/__init__.py (module)                                 |        COVERED |
 |-------------------------------------------------------------|----------------|
 | server/channels_client.py (module)                          |         MISSED |
 |   ChannelsClient (L20)                                      |        COVERED |
@@ -185,13 +185,13 @@
 ----------------------------------- Summary ------------------------------------
 | Name                             |    Total |    Miss |    Cover |    Cover% |
 |----------------------------------|----------|---------|----------|-----------|
-| __init__.py                      |        1 |       1 |        0 |        0% |
-| apps.py                          |        4 |       4 |        0 |        0% |
+| __init__.py                      |        1 |       0 |        1 |      100% |
+| apps.py                          |        4 |       0 |        4 |      100% |
 | base_channel_layer.py            |        9 |       5 |        4 |       44% |
-| config.py                        |        1 |       1 |        0 |        0% |
+| config.py                        |        1 |       0 |        1 |      100% |
 | layer.py                         |       13 |       1 |       12 |       92% |
 | process_client.py                |        9 |       1 |        8 |       89% |
-| server/__init__.py               |        1 |       1 |        0 |        0% |
+| server/__init__.py               |        1 |       0 |        1 |      100% |
 | server/channels_client.py        |       24 |       2 |       22 |       92% |
 | server/channels_server.py        |       16 |       1 |       15 |       94% |
 | server/client_queue.py           |       10 |       1 |        9 |       90% |
@@ -202,6 +202,6 @@
 | server/socket_manager.py         |        9 |       1 |        8 |       89% |
 | server/utils.py                  |       18 |       4 |       14 |       78% |
 |----------------------------------|----------|---------|----------|-----------|
-| TOTAL                            |      163 |      30 |      133 |     81.6% |
----------------- RESULT: FAILED (minimum: 95.0%, actual: 81.6%) ----------------
+| TOTAL                            |      163 |      23 |      140 |     85.9% |
+---------------- RESULT: FAILED (minimum: 95.0%, actual: 85.9%) ----------------
 Generated badge to /home/diaazul/workspace/python/django-message-broker/docs/assets/interrogate_badge.svg

@@ -1,3 +1,4 @@
+"""Core client-server functionality for Django Message Broker."""
 from .exceptions import (
     MessageFormatException,
     MessageCommandUnknown,

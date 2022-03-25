@@ -22,5 +22,9 @@ class ChannelQueueFull(Exception):
     """Channel queue is full."""
 
 
+class ChannelFlushed(Exception):
+    """Channel was flushed from the message broker and no longer exists."""
+
+
 class ChannelsSocketClosed(Exception):
     """Exception raised when message pushed to closed socket."""

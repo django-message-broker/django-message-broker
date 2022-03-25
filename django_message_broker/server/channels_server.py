@@ -11,7 +11,6 @@ from .exceptions import (
     ChannelsServerError,
     MessageCommandUnknown,
     SubscriptionError,
-    MessageFormatException,
 )
 from .signalling_message import SignallingMessage, SignallingMessageCommands
 from .socket_manager import SocketManager

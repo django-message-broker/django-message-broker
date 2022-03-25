@@ -141,7 +141,7 @@ class ChannelsClient:
         self.signalling_response_event[message_id] = Event()
         await self.signalling_response_event[message_id].wait()
 
-    def _get_routing_id(self) -> str:
+    def get_routing_id(self) -> str:
         """Returns the routing id from the zmq.DEALER socket used to route message from
         the server to the client. The routing id is a 32-bit unsigned integer which is
         appended to the string `zmq_id_` to provide a unique channels client identifier.
@@ -149,13 +149,22 @@ class ChannelsClient:
         Returns:
             str: Routing id
         """
-        id_b = self.data_manager.get_routing_id()
-        routing_id = int.from_bytes(id_b, byteorder="big", signed=False) if id_b else 0
-        channels_id = f"zmq_id_{routing_id}"
+        routing_id = self.data_manager.get_routing_id() or b'\x00'
+        channels_id = f"zmq_id_{routing_id.hex()}"
         return channels_id
 
-    def _get_subscriber_id(self) -> bytes:
-        return f"sub_id_{uuid.uuid4().hex}".encode("utf-8")
+    def get_subscriber_id(self) -> bytes:
+        """Returns a unique subscriber id across all clients connected to the server.
+        Uniqueness is obtained by combining the `routing_id` of the ZMQ socket with a
+        uuid4 reference. This minimises the chance that any two subscribers will have
+        the same reference.
+
+        Returns:
+            bytes: Unique subscriber reference.
+        """
+        routing_id = self.data_manager.get_routing_id() or b'\x00'
+        subscriber_id = f"sub_id_{routing_id.hex()}_{uuid.uuid4().hex}".encode("utf-8")
+        return subscriber_id
 
     async def _subscribe(self, channel_name: bytes, subscriber_name: bytes) -> None:
         """Subscribes to a channel to ensure that messages are delivered to the client.

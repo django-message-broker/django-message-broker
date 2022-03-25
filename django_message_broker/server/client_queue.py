@@ -6,6 +6,8 @@ from typing import Dict, Iterator, Optional
 
 from .utils import WeakPeriodicCallback
 from .utils import IntegerSequence
+from .utils import WaitFor
+from .exceptions import ChannelFlushed
 from .data_message import DataMessage
 
 
@@ -29,6 +31,7 @@ class ClientQueue:
 
         self.queue: Dict[int, DataMessage] = {}
         self.messages_available: Event = asyncio.Event()
+        self.terminating: Event = asyncio.Event()
         self.msq_sequence: Iterator = IntegerSequence().new_iterator()
 
         self.flush_message_callback = WeakPeriodicCallback(
@@ -42,6 +45,7 @@ class ClientQueue:
         """
         self.messages_available.clear()
         self.flush_message_callback.stop()
+        self.terminating.set()
 
     def _set_messages_available(self) -> None:
         """Set (or clear) asyncio event if there are message in the queue."""
@@ -84,11 +88,13 @@ class ClientQueue:
         Returns:
             Optional[DataMessage]: Data message
         """
-        await self.messages_available.wait()
-        if self.queue:
+        await WaitFor([self.messages_available, self.terminating]).one_event()
+        if self.messages_available.is_set() and self.queue:
             sequence = next(iter(self.queue))
             message = self.queue.pop(sequence)
             self._set_messages_available()
+        elif self.terminating.is_set():
+            raise ChannelFlushed
         else:
             message = None
 
@@ -118,8 +124,8 @@ class ClientQueue:
     def can_be_flushed(self) -> bool:
         """True if the channel can be flushed from the message store.
 
-        To prevent asyncio cancelled errors, the channel is only flushed when there
-        are no clients waiting to receive a message.
+        A channel can be flushed when there are no messages and no subscribers
+        to the queue, and the expiry date has been passed.
 
         Returns:
             bool: True if the channel can be flushed.

@@ -1,8 +1,9 @@
+import asyncio
 from inspect import isawaitable
 import types
 from tornado.ioloop import PeriodicCallback
 from tornado.log import app_log
-from typing import Awaitable, Callable, Dict, Optional, Iterator
+from typing import Awaitable, Callable, Dict, List, Optional, Iterator
 import weakref
 
 
@@ -60,6 +61,113 @@ class WeakPeriodicCallback(PeriodicCallback):
             app_log.error("Exception in callback %r", self.callback, exc_info=True)
         finally:
             self._schedule_next()
+
+
+class MethodProxy:
+    """Creates a registry to proxy strong function references with weak ones."""
+
+    hive: Dict[int, Callable] = dict()
+
+    @classmethod
+    def register(cls, callback: Callable) -> Callable:
+        """Registers a callback in a registry of callable methods and returns
+        a callback with a weakref to the original callback method.
+
+        Args:
+            callback (Callable): Original callback method.
+
+        Raises:
+            ReferenceError: If the referenced callable has already been garbage
+                            the terminates future and propagates into enclosing
+                            waiting code.
+
+        Returns:
+            Callable: Weakref callable to the original callback method.
+        """
+        callback_ref = hash(callback)
+        weak_callback = weakref.WeakMethod(callback)
+
+        def proxy_callable(*args, **kwargs):
+            callback = weak_callback()
+            if callback is None:
+                raise ReferenceError
+            else:
+                return_value = callback(*args, **kwargs)
+
+            return return_value
+
+        cls.hive[callback_ref] = proxy_callable
+
+        return cls.hive[callback_ref]
+
+    @classmethod
+    def unregister(cls, callback: Callable) -> None:
+        """Removes a callable method from the registry.
+
+        Args:
+            callback (Callable): Callable method to unregister
+        """
+        callback_ref = hash(callback)
+        try:
+            del cls.hive[callback_ref]
+        except KeyError:
+            pass
+
+
+class WaitFor:
+    """Waits for a combination of events to occur before continuing code execution.
+
+    The code creates weak referenced callbacks which are triggered when an event in
+    the list is set. The class exposes two asyncio methods:
+
+    * ``one_event()`` - Which is triggered when any one of the events is set.
+    * ``all_events()`` - Which is triggered when all the events are set.
+    """
+    def __init__(self, events: List[asyncio.Event]) -> None:
+        """Takes a list of asyncio events as arguments.
+
+        Args:
+            events (List[Event]): List of events to monitor.
+        """
+        self.events = events
+        self.tasks = [asyncio.create_task(event.wait()) for event in events]
+
+        proxy_callback = MethodProxy.register(self._callback)
+        for task in self.tasks:
+            task.add_done_callback(proxy_callback)
+        self.total_events = len(events)
+        self.all = asyncio.Event()
+        self.one = asyncio.Event()
+
+    def _callback(self, task: asyncio.Task) -> None:
+        """Callback when an event is set. The callback is proxied so that the
+        method reference is weak, enabling this class to be garbage collected
+        before the task is complete.
+
+        Args:
+            task (_type_): Asyncio callbacks are passed with the task as argument.
+        """
+        events_set = [event.is_set() for event in self.events]
+        event_count = sum(events_set)
+        if event_count > 0:
+            self.one.set()
+        if event_count == self.total_events:
+            self.all.set()
+
+    async def all_events(self) -> None:
+        """Waits until all events are set."""
+        await self.all.wait()
+        MethodProxy.unregister(self._callback)
+
+    async def one_event(self) -> None:
+        """Waits until any one event is set."""
+        await self.one.wait()
+        MethodProxy.unregister(self._callback)
+
+    def __del__(self) -> None:
+        """Remove any outstanding tasks from the event loop."""
+        for task in self.tasks:
+            task.cancel()
 
 
 class MethodRegistry:

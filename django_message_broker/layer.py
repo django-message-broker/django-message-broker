@@ -65,7 +65,7 @@ class ChannelsServerLayer(ChannelsClient, BaseChannelLayer):
         Returns:
             str: Process specific channel name.
         """
-        channels_client_id = self._get_routing_id()
+        channels_client_id = self.get_routing_id()
         random_id = uuid.uuid4().hex
         new_process_channel_name = f"{prefix}.{channels_client_id}!{random_id}"
 
