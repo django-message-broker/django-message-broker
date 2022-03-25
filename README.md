@@ -1,5 +1,7 @@
 # Django Message Broker
 
+[![Documentation Status](https://readthedocs.org/projects/django-message-broker/badge/?version=latest)](https://django-message-broker.readthedocs.io/en/latest/?badge=latest)
+
 <img src="assets/DMB Ecosystem opt.svg"
      alt="Django message broker ecosystem"
      width=200
